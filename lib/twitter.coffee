@@ -1,7 +1,7 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
 
   #################################################
@@ -19,7 +19,7 @@ define (require) ->
     # -------------------------------------------
 
     loadSdk: ->
-      sf.log [__private.moduleName(), 'loadSdk']
+      imp.log [__private.moduleName(), 'loadSdk']
 
       script = window.document.createElement('script')
       script.id = "twitter-wjs"
@@ -43,7 +43,7 @@ define (require) ->
         params = []
 
         # set defaults
-        options.onComplete ?= (button) -> sf.log [__private.moduleName(), 'getTweetButton:onComplete', button]
+        options.onComplete ?= (button) -> imp.log [__private.moduleName(), 'getTweetButton:onComplete', button]
 
         options.url       ?= "http://www.goanteup.com/!#/bet/{{betData.id}}"
         options.text      ?= "Check this out on beatguide"
@@ -55,7 +55,7 @@ define (require) ->
         options.hashtags  ?= "#Berlin"        #Comma separated hashtags appended to tweet text
         options.size      ?= ""               #The size of the rendered button
 
-        sf.log [__private.moduleName(),"Tweet Button Options", options]
+        imp.log [__private.moduleName(),"Tweet Button Options", options]
 
         # build url with params
         tweetButton = '<a href="https://twitter.com/share"
@@ -74,7 +74,7 @@ define (require) ->
         options.onComplete tweetButton
 
       else
-        sf.logError [__private.moduleName(), 'getTweetButton', 'missing options.URL']
+        imp.logError [__private.moduleName(), 'getTweetButton', 'missing options.URL']
 
 
     # -------------------------------------------

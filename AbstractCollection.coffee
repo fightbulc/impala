@@ -43,7 +43,6 @@ define (require) ->
     # -------------------------------------------
 
     smartReset: (data) ->
-
       idsToKeep = []
 
       #

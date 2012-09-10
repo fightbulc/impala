@@ -1,7 +1,7 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  sf = require 'snakeface'
+  imp = require 'impala'
   momentjs = require 'moment'
 
   __private =
@@ -32,7 +32,7 @@ define (require) ->
         #
         # Not? Ok, now we can panic!
         #
-        sf.logError [__private.moduleName(), 'imageLoadAsync', options, 'options.src is a mandatory option for imageLoadAsync!'] if not options.src?
+        imp.logError [__private.moduleName(), 'imageLoadAsync', options, 'options.src is a mandatory option for imageLoadAsync!'] if not options.src?
 
       image = new Image()
 
@@ -63,6 +63,9 @@ define (require) ->
         if typeof options.onError is 'function'
           options.onError(image.src)
 
+      #
+      # Fetch image
+      #
       image.src = options.src
 
     # -------------------------------------------

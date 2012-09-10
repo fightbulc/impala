@@ -1,6 +1,6 @@
 define (require) ->
   _ = require 'underscore'
-  sf = require 'snakeface'
+  imp = require 'impala'
 
   ###############################################
 
@@ -44,7 +44,7 @@ define (require) ->
       __private.services[options.api].params = options.params if options.params?
       __private.services[options.api].intervalMs = options.intervalMs if options.intervalMs?
 
-      sf.log [__private.moduleName(), options.api, __private.services[options.api].intervalMs]
+      imp.log [__private.moduleName(), options.api, __private.services[options.api].intervalMs]
 
     # -------------------------------------------
 
@@ -99,7 +99,7 @@ define (require) ->
       clearTimeout(__private.timers[api]) if __private.timers[api]?
 
       if __private.services[api]?
-#        sf.log [__private.moduleName(), 'run', api, __private.services[api]]
+#        imp.log [__private.moduleName(), 'run', api, __private.services[api]]
 
         #
         # run initials first
@@ -112,7 +112,7 @@ define (require) ->
         #
         else
           if __private.services[api].intervalMs > 0
-            sf.jsonRequest
+            imp.jsonRequest
               api: api
               params: __private.services[api].params
               success: (response, status) =>
@@ -130,7 +130,7 @@ define (require) ->
     # -------------------------------------------
 
     remove: (api) ->
-      sf.log [__private.moduleName(), 'remove', api]
+      imp.log [__private.moduleName(), 'remove', api]
       clearTimeout(__private.timers[api]) if __private.timers[api]?
       delete __private.services[api] if __private.services[api]?
 
@@ -138,5 +138,5 @@ define (require) ->
     # -------------------------------------------
 
     reset: ->
-      sf.log [__private.moduleName(), 'reset']
+      imp.log [__private.moduleName(), 'reset']
       __private.services = {}

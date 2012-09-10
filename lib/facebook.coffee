@@ -1,7 +1,7 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
 
   #################################################
@@ -17,7 +17,7 @@ define (require) ->
     # -------------------------------------------
 
     getFacebookConfig: ->
-      conf = sf.getConfigByKey('facebook')
+      conf = imp.getConfigByKey('facebook')
 
       # force facebook to get data from server
       conf.forceRoundtrip = false if _.isUndefined(conf.forceRoundtrip)
@@ -59,7 +59,7 @@ define (require) ->
     # -------------------------------------------
 
     loadSdk: (d) ->
-      sf.log [__private.moduleName(), 'loadSDK']
+      imp.log [__private.moduleName(), 'loadSDK']
 
       # create fb-root container
       $('body').prepend($('<div/>').attr('id', 'fb-root'))
@@ -76,10 +76,10 @@ define (require) ->
     # -------------------------------------------
 
     initEventListeners: ->
-      sf.log [__private.moduleName(), 'initEventListeners']
+      imp.log [__private.moduleName(), 'initEventListeners']
 
       initCallback = (response) =>
-        sf.log [__private.moduleName(), 'event:getLoginStatus', response]
+        imp.log [__private.moduleName(), 'event:getLoginStatus', response]
 
         #
         # Set connection state
@@ -93,17 +93,17 @@ define (require) ->
 
         # user gets auth prompt
         FB.Event.subscribe 'auth.prompt', (response) ->
-          sf.log [__private.moduleName(), 'event:auth.prompt']
+          imp.log [__private.moduleName(), 'event:auth.prompt']
           pubsub.publish 'facebook:authPrompt', response
 
         # user session state changes
         FB.Event.subscribe 'auth.sessionChange', (response) =>
-          sf.log [__private.moduleName(), 'event:auth.sessionChange']
+          imp.log [__private.moduleName(), 'event:auth.sessionChange']
           @handleSessionRequestResponse(response)
 
         # user session state changes
         FB.Event.subscribe 'auth.statusChange', (response) =>
-          sf.log [__private.moduleName(), 'event:auth.statusChange']
+          imp.log [__private.moduleName(), 'event:auth.statusChange']
           @handleSessionRequestResponse(response)
 
         #
@@ -171,11 +171,11 @@ define (require) ->
     # -------------------------------------------
 
     handleSessionRequestResponse: (response) ->
-      sf.log [__private.moduleName(), 'handleSessionRequestResponse', response]
+      imp.log [__private.moduleName(), 'handleSessionRequestResponse', response]
 
       switch response.status
         when 'connected'
-          sf.log [__private.moduleName(), 'authHasSession']
+          imp.log [__private.moduleName(), 'authHasSession']
 
           #
           # we got a session and our
@@ -184,7 +184,7 @@ define (require) ->
           pubsub.publish 'facebook:authHasSession', response
 
         when 'not_authorized'
-          sf.log [__private.moduleName(), 'authNotAuthorized / authNoSession']
+          imp.log [__private.moduleName(), 'authNotAuthorized / authNoSession']
 
           #
           # we got a facebook session but our
@@ -194,7 +194,7 @@ define (require) ->
           pubsub.publish 'facebook:authNotAuthorized', response
 
         else
-          sf.log [__private.moduleName(), 'authNoSession']
+          imp.log [__private.moduleName(), 'authNoSession']
 
           #
           # report that we dont have a session
@@ -219,12 +219,12 @@ define (require) ->
     # -------------------------------------------
 
     getLoginUrl: ->
-      sf.log [__private.moduleName(), 'getLoginUrl']
+      imp.log [__private.moduleName(), 'getLoginUrl']
 
       params =
         appId: __private.getFacebookConfig()['appId']
         scope: __private.getFacebookConfig()['permissions'].join(',')
-        callbackUrl: encodeURIComponent [sf.getFacebookConfig()['permissions'].join(','), sf.getFacebookConfig()['callbackUrl']].join ''
+        callbackUrl: encodeURIComponent [imp.getFacebookConfig()['permissions'].join(','), imp.getFacebookConfig()['callbackUrl']].join ''
 
       authUrl = getConf().authUrl
       authUrl = authUrl.replace("{{#{key}}}", val) for key,val of params
@@ -233,24 +233,19 @@ define (require) ->
     # -------------------------------------------
 
     loginViaRedirect: ->
-      sf.log [__private.moduleName(), 'loginViaRedirect']
+      imp.log [__private.moduleName(), 'loginViaRedirect']
       window.location.href = @getLoginUrl()
 
     # -------------------------------------------
 
     loginViaPopup: (callback) ->
-      sf.log [__private.moduleName(), 'loginViaPopup']
-
-      #
-      # show loading state
-      #
-      sf.pageStateLoading(__private.moduleName() + '/loginViaPopup')
+      imp.log [__private.moduleName(), 'loginViaPopup']
 
       #
       # cancel handling
       #
       cancelHandle = (response) ->
-        sf.pageStateLoaded(__private.moduleName() + '/loginViaPopup') if response.authResponse is null
+        imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
 
       #
       # authenticate via popup
@@ -260,26 +255,26 @@ define (require) ->
     # -------------------------------------------
 
     logout: (callback) ->
-      sf.log [__private.moduleName(), 'logout']
+      imp.log [__private.moduleName(), 'logout']
       FB.logout (response) ->
         callback() if callback isnt undefined
 
   # -------------------------------------------
 
     getPermissions: (responseCallback) ->
-      sf.log [__private.moduleName(), 'getPermissions']
+      imp.log [__private.moduleName(), 'getPermissions']
       FB.api '/me/permissions', responseCallback
 
     # -------------------------------------------
 
     requestPermissions: (permissions, callback) ->
-      sf.log [__private.moduleName(), 'requestPermissions', permissions]
+      imp.log [__private.moduleName(), 'requestPermissions', permissions]
       FB.login callback, scope: permissions.join ','
 
     # -------------------------------------------
 
     sendAppRequest: (options) ->
-      sf.log [__private.moduleName(), 'sendAppRequest', options]
+      imp.log [__private.moduleName(), 'sendAppRequest', options]
 
       requestOptions =
         method: 'apprequests'
@@ -291,7 +286,7 @@ define (require) ->
       # set default callback if none passed
       if _.isUndefined options.callback
         options.callback = (response) ->
-          sf.log [__private.moduleName(), 'sendAppRequest:callback', response]
+          imp.log [__private.moduleName(), 'sendAppRequest:callback', response]
 
       # send request
       FB.ui requestOptions, options.callback
@@ -299,35 +294,35 @@ define (require) ->
     # -------------------------------------------
 
     deleteAppRequest: (options) ->
-      sf.log [__private.moduleName(), 'deleteAppRequest', options]
+      imp.log [__private.moduleName(), 'deleteAppRequest', options]
 
       if not _.isUndefined(options.requestId) and not _.isUndefined(options.recipientFbUserId)
         # set default callback if none passed
         if _.isUndefined(options.callback)
           options.callback = (response) ->
-            sf.log [__private.moduleName(), 'deleteAppRequest:callback', response]
+            imp.log [__private.moduleName(), 'deleteAppRequest:callback', response]
 
         FB.api "#{options.requestId}_#{options.recipientFbUserId}", 'DELETE', options.callback
       else
-        sf.logError [__private.moduleName(), 'deleteAppRequest', 'missing params: requestId and/or recipientFbUserId']
+        imp.logError [__private.moduleName(), 'deleteAppRequest', 'missing params: requestId and/or recipientFbUserId']
 
     # -------------------------------------------
 
     getAppRequestDialog: (options) ->
-      sf.log [__private.moduleName(), 'getAppRequestDialog', options]
+      imp.log [__private.moduleName(), 'getAppRequestDialog', options]
       options.fbUserIds = []
       @sendAppRequest options
 
     # -------------------------------------------
 
     getLikeButton: (options) ->
-      sf.log [__private.moduleName(), 'getLikeButton', JSON.stringify(options)]
+      imp.log [__private.moduleName(), 'getLikeButton', JSON.stringify(options)]
 
       if not _.isUndefined(options.href)
         params = []
 
         # set defaults
-        options.onComplete ?= (button) -> sf.log [__private.moduleName(), 'getLikeButton:onComplete', button]
+        options.onComplete ?= (button) -> imp.log [__private.moduleName(), 'getLikeButton:onComplete', button]
         options.layout ?= 'button_count'
         options.show_faces ?= false
         options.font ?= 'lucida grande'
@@ -353,12 +348,12 @@ define (require) ->
         options.onComplete fbButton
 
       else
-        sf.logError [__private.moduleName(), 'getLikeButton', 'missing options.href']
+        imp.logError [__private.moduleName(), 'getLikeButton', 'missing options.href']
 
     # -------------------------------------------
 
     createStreamPost: (options) ->
-      sf.log [__private.moduleName(), 'createStreamPost', options]
+      imp.log [__private.moduleName(), 'createStreamPost', options]
 
       params =
         link: options.link
@@ -369,13 +364,13 @@ define (require) ->
       params.caption if not _.isUndefined options.caption
       params.description if not _.isUndefined options.description
 
-      FB.api '/me/feed', 'POST', params, (response) -> sf.log [__private.moduleName(), 'createStreamPost:callback', response]
+      FB.api '/me/feed', 'POST', params, (response) -> imp.log [__private.moduleName(), 'createStreamPost:callback', response]
 
     # -------------------------------------------
 
     deleteStreamPost: (postId) ->
-      sf.log [__private.moduleName(), 'deleteStreamPost', postId]
-      FB.api postId, 'DELETE', (response) -> sf.log [__private.moduleName(), 'deleteStreamPost:callback', response] if not _.isEmpty(postId)
+      imp.log [__private.moduleName(), 'deleteStreamPost', postId]
+      FB.api postId, 'DELETE', (response) -> imp.log [__private.moduleName(), 'deleteStreamPost:callback', response] if not _.isEmpty(postId)
 
     # -------------------------------------------
 

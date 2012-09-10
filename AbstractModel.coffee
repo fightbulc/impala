@@ -1,7 +1,7 @@
 define (require) ->
   _ = require 'underscore'
   Backbone = require 'backbone'
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
 
   ###############################################
@@ -16,7 +16,7 @@ define (require) ->
           options: options
         ]
 
-    sf.jsonRequest(options)
+    imp.jsonRequest(options)
 
   ###############################################
 

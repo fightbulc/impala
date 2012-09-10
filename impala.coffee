@@ -13,32 +13,12 @@ define (require) ->
     # -------------------------------------------
 
     moduleName: ->
-      'snakeface'
+      'impala'
 
     # -------------------------------------------
 
     isLoggingEnabled: ->
       true if _.isUndefined(console) is false and __public.getConfigByKey('logging') is true
-
-    # -------------------------------------------
-
-    setCurrentPageId: (pageId) ->
-      @currentPageId = pageId
-
-    # -------------------------------------------
-
-    saveScrollPosition: ->
-      @pageScrollPosition[@currentPageId] = $(window).scrollTop() if @currentPageId
-
-    # -------------------------------------------
-
-    restoreScrollPosition: ->
-      $(window).scrollTop(@pageScrollPosition[@currentPageId])
-
-    # -------------------------------------------
-
-    scrollToTop: ->
-      $(window).scrollTop(0)
 
   ###############################################
 
@@ -69,48 +49,9 @@ define (require) ->
 
     # -------------------------------------------
 
-    pageStateLoading: (callerId) ->
-      @log ['pageStateLoading', '@@@@@@@@@@@@@', callerId]
-      $('#pageLoading').show()
-      __private.saveScrollPosition()
-
-    # -------------------------------------------
-
-    pageStateLoaded: (callerId) ->
-      @log ['pageStateLoaded', '$$$$$$$$$$$$$$$$', callerId]
-      $('#pageLoading').fadeOut(50)
-
-    # -------------------------------------------
-
-    hideAllPages: ->
-      # $('.page').addClass('pageInvisible')
-      $('.page').hide()
-      $(".nav-container > a").removeClass("active")
-
-    # -------------------------------------------
-
-    showPage: (pageId) ->
-      $("##{pageId}").removeClass('pageInvisible')
-      $("##{pageId}").show()
-      __private.scrollToTop()
-      #
-      # Inform app about page change
-      #
-      pubsub.publish 'showPage:ready', pageId
-
-    # -------------------------------------------
-
-    switchPage: (pageId) ->
-      __private.setCurrentPageId(pageId)
-      @hideAllPages()
-      @showPage(pageId)
-      __private.restoreScrollPosition()
-
-    # -------------------------------------------
-
-    makeNavItemActive: (navItem) ->
-
-      $(".nav-container "+navItem).addClass("active")
+    hideInitialLoadingContainer: ->
+      $('#initialLoadingContainer').hide()
+      $('#receivedPayloadContainer').fadeIn()
 
     # -------------------------------------------
 
@@ -203,11 +144,11 @@ define (require) ->
               options.error response, errorThrown, options
 
             else
-              @logError ["snakeface.jsonRequest", response, errorThrown, options]
+              @logError ["#{__private.moduleName()}.jsonRequest", response, errorThrown, options]
 
         # no API defined
       else
-        @logError ["snakeface.jsonRequest", "options.api is undefined", options]
+        @logError ["#{__private.moduleName()}.jsonRequest", "options.api is undefined", options]
 
   ###############################################
 

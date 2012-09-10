@@ -1,7 +1,7 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
   template = require 'template'
   template.addTemplate 'InfoWindow', require 'text!app/tmpl/Map/InfoWindow.mustache'
@@ -17,17 +17,17 @@ define (require) ->
 
   __public =
     init: ->
-      sf.log [__private.moduleName(), 'init']
+      imp.log [__private.moduleName(), 'init']
       @loadSDK()
 
     loadSDK: ->
-      sf.log [__private.moduleName(), 'loadSDK']
+      imp.log [__private.moduleName(), 'loadSDK']
 
       require ['async!http://maps.google.com/maps/api/js?sensor=false'], =>
         pubsub.publish 'googleMaps:ready'
 
     addMapToCanvas: (ele) ->
-      sf.log [__private.moduleName(), 'addMapToCanvas', ele]
+      imp.log [__private.moduleName(), 'addMapToCanvas', ele]
 
       #
       # Find canvas in DOM and make it a map.
@@ -40,7 +40,7 @@ define (require) ->
     # -------------------------------------------
 
     addOptionsToMap: (map, options) ->
-      sf.log [__private.moduleName(), 'addOptionsToMap', map, options]
+      imp.log [__private.moduleName(), 'addOptionsToMap', map, options]
 
       mapOptions =
         center: new google.maps.LatLng( options.lat, options.lng )
@@ -77,7 +77,7 @@ define (require) ->
     # -------------------------------------------
 
     addCustomStyleToMap: (map, options)->
-      sf.log [__private.moduleName(), 'addCustomStyleToMap', map, options]
+      imp.log [__private.moduleName(), 'addCustomStyleToMap', map, options]
 
       #
       # Create a new StyledMapType object, passing it the array of styles,
@@ -94,7 +94,7 @@ define (require) ->
     # -------------------------------------------
 
     zoomMapTo: (map, level) ->
-      sf.log [__private.moduleName(), 'zoomMapTo', level]
+      imp.log [__private.moduleName(), 'zoomMapTo', level]
       map.setZoom level
 
     # -------------------------------------------
@@ -105,7 +105,7 @@ define (require) ->
     # -------------------------------------------
 
     addOneMarkerToMap: (map,obj)->
-      # sf.log [__private.moduleName(), 'addOneMarkerToMap', map, obj]
+      # imp.log [__private.moduleName(), 'addOneMarkerToMap', map, obj]
 
       #
       # Creating a marker and positioning it on the map
@@ -121,25 +121,25 @@ define (require) ->
     # -------------------------------------------
 
     hideAllMarkers: (markers) ->
-      sf.log [__private.moduleName(), 'hideAllMarkers', markers]
+      imp.log [__private.moduleName(), 'hideAllMarkers', markers]
       @hideMarker(marker) for markerId,marker of markers
 
     # -------------------------------------------
 
     showAllMarkers: (markers) ->
-      sf.log [__private.moduleName(), 'showAllMarkers', markers]
+      imp.log [__private.moduleName(), 'showAllMarkers', markers]
       @showMarker(marker) for markerId,marker of markers
 
     # -------------------------------------------
 
     hideMarker: (marker) ->
-      # sf.log [__private.moduleName(), 'hideMarker', marker]
+      # imp.log [__private.moduleName(), 'hideMarker', marker]
       marker.setVisible(false)
 
     # -------------------------------------------
 
     showMarker: (marker) ->
-      # sf.log [__private.moduleName(), 'showMarker', marker]
+      # imp.log [__private.moduleName(), 'showMarker', marker]
       marker.setVisible(true)
 
     # -------------------------------------------
@@ -153,7 +153,7 @@ define (require) ->
     # -------------------------------------------
 
     addInfoWindowToMarker: (map, dto, marker)->
-      # sf.log [__private.moduleName(), 'addInfoWindowToMap', map, dto, marker]
+      # imp.log [__private.moduleName(), 'addInfoWindowToMap', map, dto, marker]
 
       google.maps.event.addListener marker, 'click', =>
 

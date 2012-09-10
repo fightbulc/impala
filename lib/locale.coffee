@@ -1,6 +1,6 @@
 define (require) ->
   $ = require 'jquery'
-  sf = require 'snakeface'
+  imp = require 'impala'
   $.i18n = require 'vendor/i18next/i18next-1.2.3'
 
   ###############################################
@@ -15,7 +15,7 @@ define (require) ->
 
   __public =
     setLng: (lang) ->
-      sf.log [api.module, 'setLang', lang]
+      imp.log [api.module, 'setLang', lang]
       $.i18n.setLng lang
 
     # -------------------------------------------
@@ -37,7 +37,7 @@ define (require) ->
     # 1. Foo
     # 2. Foo Bar
     get: (key, vars = {}) ->
-      sf.log [api.module, 'get', key, vars]
+      imp.log [api.module, 'get', key, vars]
 
       try
       # try to translate vars
@@ -46,7 +46,7 @@ define (require) ->
         # translate the actual string
         $.t key, vars
       catch error
-        sf.logError [api.module, 'key missing', key, error]
+        imp.logError [api.module, 'key missing', key, error]
 
   ###############################################
 

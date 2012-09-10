@@ -1,5 +1,5 @@
 define (require) ->
-  sf = require 'snakeface'
+  imp = require 'impala'
 
   ###############################################
 
@@ -11,5 +11,5 @@ define (require) ->
 
   __public =
     track: (options) ->
-      sf.log [__private.moduleName(), 'track', options.page]
+      imp.log [__private.moduleName(), 'track', options.page]
       _gaq.push ['_trackPageview', "#!/#{options.page}"]

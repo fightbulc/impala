@@ -1,7 +1,7 @@
 define (require) ->
   _ = require 'underscore'
   Backbone = require 'backbone'
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
 
   ###############################################
@@ -14,13 +14,13 @@ define (require) ->
 
   Backbone.Router.extend
     initialize: ->
-      sf.log [__private.moduleName(), 'init', sf.getConfig()]
+      imp.log [__private.moduleName(), 'init', imp.getConfig()]
 
       #
       # Init history
       #
       Backbone.history.stop()
-      Backbone.history.start root: sf.getConfigByKey('url').public
+      Backbone.history.start root: imp.getConfigByKey('url').public
 
       #
       # listen for redirect requests
@@ -35,17 +35,17 @@ define (require) ->
     # -------------------------------------------
 
     redirect: (route) ->
-      sf.log [__private.moduleName(), 'redirect', route]
+      imp.log [__private.moduleName(), 'redirect', route]
       Backbone.history.navigate "!/#{route}", trigger: true
 
     # -------------------------------------------
 
     updateUrl: (route) ->
-      sf.log [__private.moduleName(), 'updateUrl', route]
+      imp.log [__private.moduleName(), 'updateUrl', route]
       Backbone.history.navigate "!/#{route}"
 
     # -------------------------------------------
 
     getCurrentRoute: ->
-      sf.log [__private.moduleName(), 'getCurrentRoute']
+      imp.log [__private.moduleName(), 'getCurrentRoute']
       Backbone.history.fragment.replace '!/', ''

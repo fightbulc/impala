@@ -1,6 +1,6 @@
 define (require) ->
   $ = require 'jquery'
-  sf = require 'snakeface'
+  imp = require 'impala'
   Engine = require 'vendor/hoganjs/hogan-2.0.0.amd'
 
   ###############################################
@@ -70,7 +70,7 @@ define (require) ->
     # -------------------------------------------
 
     getCompiledTemplate: (tmplId) ->
-      sf.log [__private.moduleName(), tmplId, 'template doesnt exist'], true if not (tmplId of __private.compilations)
+      imp.log [__private.moduleName(), tmplId, 'template doesnt exist'], true if not (tmplId of __private.compilations)
       __private.compilations[tmplId]
 
     # -------------------------------------------

@@ -1,5 +1,5 @@
 define (require) ->
-  sf = require 'snakeface'
+  imp = require 'impala'
   pubsub = require 'pubsub'
 
   ###############################################
@@ -27,7 +27,7 @@ define (require) ->
     #-----------------------------------------------
 
     getImagesByCoordinates: (options) ->
-      sf.log [__private.moduleName(), 'getImagesByCoordinats', options]
+      imp.log [__private.moduleName(), 'getImagesByCoordinats', options]
 
       if options.lng? and options.lat?
 
@@ -44,7 +44,7 @@ define (require) ->
         @getPics url
 
       else
-        sf.logError [__private.moduleName(), 'getImagesByCoordinates', 'missing lng or lat']
+        imp.logError [__private.moduleName(), 'getImagesByCoordinates', 'missing lng or lat']
 
 
     #-----------------------------------------------
@@ -55,7 +55,7 @@ define (require) ->
     #-----------------------------------------------
 
     getImagesByTerm: (term) ->
-      sf.log [__private.moduleName(), 'getImagesByTerm', term]
+      imp.log [__private.moduleName(), 'getImagesByTerm', term]
 
       if term
 
@@ -74,7 +74,7 @@ define (require) ->
         @getPics url
 
       else
-        sf.logError [__private.moduleName(), 'getImagesByTag', 'missing search term']
+        imp.logError [__private.moduleName(), 'getImagesByTag', 'missing search term']
 
 
     #-----------------------------------------------
@@ -94,7 +94,7 @@ define (require) ->
           if response.data?
             @paginate response
           if response.meta.error_message?
-            sf.logError [__private.moduleName(), 'getImagesByTag Error', response.meta.error_message]
+            imp.logError [__private.moduleName(), 'getImagesByTag Error', response.meta.error_message]
 
 
     #-----------------------------------------------
