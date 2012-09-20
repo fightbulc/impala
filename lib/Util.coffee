@@ -14,7 +14,7 @@ define (require) ->
     #
     # Preloads an image and populates it on event.onload
     #
-    imageLoadAsync: (options) ->
+    loadImageAsync: (options) ->
       #
       #   options:
       #     src       - url of the image to load (optional if target is set and has load-async set)
@@ -64,15 +64,18 @@ define (require) ->
     # -------------------------------------------
 
     #
-    # Automated lazy loading of images with data-load-async set inside document element
+    # Automated lazy loading of elements inside of the document element
     #
-    lazyLoadImages: ($imageContainer) ->
+    # Options:
+    #   selector: elements selector
+    #   onSuccess: what should be done when elements come into view
+    #
+    loadLazyElements: (options) ->
 
       #
       # Trigger on viewport being scrolled
       #
       $(document).scroll =>
-
         #
         # Read current specifications
         #
@@ -82,36 +85,34 @@ define (require) ->
         #
         # Find all images inside the given container that can be loaded
         #
-        $imgs = $imageContainer.find('img[data-load-async]')
+        $foundElements = options.selector
 
-        for img in $imgs
-
+        for elm in $foundElements
           #
-          # image jquery object
+          # jquery object
           #
-          $img = $(img)
-
-          #
-          # Get current top pos for image
-          #
-          imageRelativePositionTop = $img.position().top - scrollTop
+          $elm = $(elm)
 
           #
-          # We filter all unflagged images and look for images that are visible in the viewport
+          # Get elemts current top pos
           #
-          if not img._flaggedForLoading and imageRelativePositionTop <= windowHeight
+          elmRelativePositionTop = $elm.position().top - scrollTop
 
+          #
+          # We filter all unflagged elements and look
+          # for only for those visible in the viewport
+          #
+          if not elm._flaggedForLoading and elmRelativePositionTop <= windowHeight
             #
-            # Flag the image so it doesn't get loaded more than once (extra boolean on DOM element is not sexy but safe, won't cause memory leaks)
+            # Flag the element so it doesn't get loaded more than once
+            # (extra boolean on DOM element is not sexy but safe, won't cause memory leaks)
             #
-            img._flaggedForLoading = true
+            elm._flaggedForLoading = true
 
             #
             # Let the loading magic happen!
             #
-            @imageLoadAsync
-              src: $img.data('load-async')
-              target: $img
+            options.onSuccess $elm
 
       #
       # Self-trigger to load everything that already is rendered in viewport
