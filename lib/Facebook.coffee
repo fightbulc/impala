@@ -71,7 +71,11 @@ define (require) ->
       js.id = id
       js.async = true
       js.src = "//connect.facebook.net/en_US/all.js"
-      d.getElementsByTagName('head')[0].appendChild(js)
+      s = d.getElementsByTagName('head')[0].appendChild(js)
+
+      # handle load error
+      s.onerror = (data) ->
+        pubsub.publish 'facebook:sdkLoadFail', data
 
     # -------------------------------------------
 
