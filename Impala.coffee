@@ -50,8 +50,7 @@ define (require) ->
     # -------------------------------------------
 
     hideInitialLoadingContainer: ->
-      $('#initialLoadingContainer').hide()
-      $('#receivedPayloadContainer').fadeIn()
+      $('#initialLoadingContainer').fadeOut 'fast', -> $('#receivedPayloadContainer').show()
 
     # -------------------------------------------
 

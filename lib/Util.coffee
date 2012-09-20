@@ -25,85 +25,81 @@ define (require) ->
       #
 
       #
-      # src not set? Don't panic, let's check if we can find load-async in target element!
+      # create new image
       #
-      if not options.src? and options.target
-        options.src = options.target.data('load-async')
-        #
-        # Not? Ok, now we can panic!
-        #
-        imp.logError [__private.moduleName(), 'imageLoadAsync', options, 'options.src is a mandatory option for imageLoadAsync!'] if not options.src?
-
       image = new Image()
 
       image.onload = ->
         #
-        # If target is set, then populate it and remove load-async data property
+        # if target is set, then populate it and remove load-async data property
         #
         if options.target
           options.target.attr('src', image.src)
           options.target.removeData('load-async')
 
         #
-        # If onSuccess is set, then do the callback
+        # if onSuccess is set, then do the callback
         #
         if typeof options.onSuccess is 'function'
           options.onSuccess(image.src)
 
       image.onerror = ->
         #
-        # Fail! If errorSrc is set and we have a target, then populate it
+        # fail! if errorSrc is set and we have a target, then populate it
         #
         if options.target and options.errorSrc
           options.target.attr('src', options.errorSrc)
 
         #
-        # Fail! If onError is set, then do the callback
+        # fail! If onError is set, then do the callback
         #
         if typeof options.onError is 'function'
           options.onError(image.src)
 
       #
-      # Fetch image
+      # fetch image
       #
       image.src = options.src
 
     # -------------------------------------------
 
     #
-    # Automated lazy loading of images with data-load-async set inside a scrolling viewport DOM element
+    # Automated lazy loading of images with data-load-async set inside document element
     #
-    lazyLoadViewport: (viewportElm) ->
+    lazyLoadImages: ($imageContainer) ->
 
       #
       # Trigger on viewport being scrolled
       #
-      viewportElm.scroll =>
+      $(document).scroll =>
 
         #
-        # Read bounding box of the viewport
+        # Read current specifications
         #
-        viewportOffset = viewportElm.offset().top
-        viewportHeight = viewportElm.height()
+        windowHeight = $(window).height()
+        scrollTop = $(document).scrollTop()
 
         #
-        # Find all images inside the viewport that can be loaded
+        # Find all images inside the given container that can be loaded
         #
-        $imgs = viewportElm.find('img[data-load-async]')
+        $imgs = $imageContainer.find('img[data-load-async]')
 
         for img in $imgs
+
+          #
+          # image jquery object
+          #
           $img = $(img)
 
           #
-          # Get the offset of any given image relative to the viewport
+          # Get current top pos for image
           #
-          imageRelativeOffset = $img.offset().top - viewportOffset
-          imageHeight = $img.height()
+          imageRelativePositionTop = $img.position().top - scrollTop
 
           #
           # We filter all unflagged images and look for images that are visible in the viewport
           #
-          if not img._flaggedForLoading and (imageRelativeOffset + imageHeight) >= 0 and imageRelativeOffset <= viewportHeight
+          if not img._flaggedForLoading and imageRelativePositionTop <= windowHeight
 
             #
             # Flag the image so it doesn't get loaded more than once (extra boolean on DOM element is not sexy but safe, won't cause memory leaks)
@@ -113,12 +109,14 @@ define (require) ->
             #
             # Let the loading magic happen!
             #
-            @imageLoadAsync(target: $img)
+            @imageLoadAsync
+              src: $img.data('load-async')
+              target: $img
 
       #
       # Self-trigger to load everything that already is rendered in viewport
       #
-      viewportElm.scroll()
+      $(document).scroll()
 
     # -------------------------------------------
 
@@ -144,23 +142,3 @@ define (require) ->
     #
     getUrlsFromText: (text) ->
       text.match @getUrlRexExp()
-
-
-    # -------------------------------------------
-
-    #
-    # get date object for now
-    #
-    getNow: ->
-      now = new Date(momentjs().format('YYYY-MM-DD') + 'T21:05:00') #Use this to fake now
-      now = momentjs().local()
-      now
-
-    # -------------------------------------------
-
-    #
-    # get date object for start of day plus offset
-    #
-    getStartOfDay: ->
-      now = momentjs().sod()
-      now
