@@ -5,4 +5,10 @@ define (require) ->
 
   ###############################################
 
-  Backbone.View
+  class AbstractView extends Backbone.View
+    events: (childEvents = {}) ->
+      _.extend childEvents, {}
+
+  ###############################################
+
+  AbstractView
