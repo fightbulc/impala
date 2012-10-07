@@ -21,8 +21,29 @@ define (require) ->
   ###############################################
 
   Backbone.Model.extend
-    setVo: (vo) ->
-      @vo = new vo(@)
+    vo: null
+
+    constantRequestParams: {}
+
+    # -------------------------------------------
+
+    setConstantRequestParams: (paramsObject) ->
+      @constantRequestParams = paramsObject
+
+    # -------------------------------------------
+
+    getConstantRequestParams: ->
+      @constantRequestParams
+
+    # -------------------------------------------
+
+    resetConstantRequestParams: ->
+      @constantRequestParams = {}
+
+    # -------------------------------------------
+
+    setVo: (VoClass) ->
+      @vo = new VoClass @
 
     # -------------------------------------------
 
@@ -36,10 +57,37 @@ define (require) ->
 
     # -------------------------------------------
 
+    setByKey: (key, val) ->
+      @set key, val
+
+    # -------------------------------------------
+
     getByKey: (key) ->
       @get key
 
     # -------------------------------------------
 
+    fetchData: (options) ->
+      @fetch @_prepareRequestOptions options
+
+    # -------------------------------------------
+
     request: (options) ->
-      @fetch options
+      imp.jsonRequest @_prepareRequestOptions options
+
+    # -------------------------------------------
+
+    #
+    # inject constant params from VO
+    #
+    _prepareRequestOptions: (options) ->
+      constantParams = @getConstantRequestParams()
+
+      if constantParams?
+
+        options.params = {} if not options.params?
+
+        for key, val of constantParams
+          options.params[key] = val
+
+      options
