@@ -3,7 +3,7 @@ define (require) ->
 
   #################################################
 
-  class abstractDto
+  class AbstractDto
     export: (vo) ->
       newData = {}
 
@@ -27,4 +27,4 @@ define (require) ->
 
   #################################################
 
-  abstractDto
+  AbstractDto

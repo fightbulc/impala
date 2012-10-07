@@ -1,7 +1,7 @@
 define (require) ->
 
-  class abstractManager
+  class AbstractManager
 
   #################################################
 
-  abstractManager
+  AbstractManager
