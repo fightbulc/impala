@@ -1,39 +1,28 @@
 define (require) ->
-  abstractModel = require 'abstractModel'
-
-  ###############################################
-
-  class abstractVo
-    model = null
-
-    # -------------------------------------------
-
-    constructor: (model) ->
-      @model = model if model?
+  class AbstractVo
+    data: {}
 
     # -------------------------------------------
 
     setData: (data) ->
-      @model = new abstractModel(data)
+      @data data
 
     # -------------------------------------------
 
     getData: ->
-      @model.getData()
+      @data
 
     # -------------------------------------------
 
     getByKey: (key) ->
-      value = @model.get(key) if @model?
-      value = '' if not value?
+      value = @data[key]
+      value = null if not value?
       value
 
     # -------------------------------------------
 
     setByKey: (key, val) ->
-      set = {}
-      set[key] = val
-      @model.set(set)
+      @data[key] = val
 
     # -------------------------------------------
 
@@ -43,4 +32,4 @@ define (require) ->
 
   #################################################
 
-  abstractVo
+  AbstractVo
