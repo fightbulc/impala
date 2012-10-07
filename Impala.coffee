@@ -6,36 +6,34 @@ define (require) ->
   ###############################################
 
   __private =
-    extraParams: {}
-    pageScrollPosition: {}
-    currentPageId: null
-
-    # -------------------------------------------
-
     moduleName: ->
       'impala'
-
-    # -------------------------------------------
-
-    isLoggingEnabled: ->
-      true if _.isUndefined(console) is false and __public.getConfigByKey('logging') is true
 
   ###############################################
 
   __public =
+    _getTimeString: ->
+      date = new Date()
+      date.toTimeString().split(' ').shift() + '.' + date.getMilliseconds()
+
+    # -------------------------------------------
+
     log: (args) ->
-      if console?
-        if __private.isLoggingEnabled() is true
-          try
-            date = new Date
-            args.unshift("#{date.getHours()}:#{date.getMinutes()}:#{date.getSeconds()}")
-          catch e
-          console.log args
+      if console? and @getConfigByKey('logging') is true
+        try
+          args.unshift("#{@_getTimeString()}")
+
+        catch e
+          console.error args
+
+        # shake what Mama gave 'ya
+        console.log args
 
     # -------------------------------------------
 
     logError: (args) ->
-      console.error args if __private.isLoggingEnabled() is true
+      if console? and @getConfigByKey('logging') is true
+        console.error args
 
     # -------------------------------------------
 
@@ -55,11 +53,6 @@ define (require) ->
 
     # -------------------------------------------
 
-    addExtraParam: (key, value) ->
-      __private.extraParams[key] = value
-
-    # -------------------------------------------
-
     #
     # Creates a JSON RPC request
     #
@@ -73,7 +66,7 @@ define (require) ->
       # defined API required
       if not _.isUndefined(options.api)
         # prepare API url
-        @getConfigByKey('url').api = $.trim(@getConfigByKey('url').api)
+        @getConfigByKey('url').api = $.trim @getConfigByKey('url').api
 
         # api root
         apiRoot = "#{@getConfigByKey('url').api}"
@@ -92,12 +85,6 @@ define (require) ->
         # set error handler if missing
         if _.isUndefined(options.error)
           options.error = (data, message, options) => @logError [options.api, 'jsonRequest', 'ERRORHANDLER', message, data, options]
-
-        # attach sessionId if available
-        options.params._sessionId = sessionId if (sessionId = @getConfig().sessionId)?
-
-        # add extra params
-        options.params[key] = value for key, value of __private.extraParams
 
         # build POST data structure
         data =
@@ -122,7 +109,6 @@ define (require) ->
           # on success
           success: (data, status) =>
             if not _.isUndefined data.result
-
               if not _.isEmpty(data.result) and not _.isUndefined(options.success)
                 options.success data.result, status
                 pubsub.publish 'jsonRequest:success', data.result
