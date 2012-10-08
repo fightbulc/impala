@@ -48,8 +48,11 @@ define (require) ->
       if @hasInstance type, key
         @instances[type][key].deconstruct() if not _.isUndefined @instances[type][key].deconstruct
 
+        # view and its subviews:
         # remove from DOM, undelegate events
-        @instances[type][key].remove() if type is 'views'
+        if type is 'views'
+          @instances[type][key]._removeSubViews()
+          @instances[type][key].remove()
 
         delete @instances[type][key]
 
