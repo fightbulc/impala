@@ -109,12 +109,9 @@ define (require) ->
           # on success
           success: (data, status) =>
             if not _.isUndefined data.result
-              if not _.isEmpty(data.result) and not _.isUndefined(options.success)
+              if not _.isUndefined(options.success)
                 options.success data.result, status
                 pubsub.publish 'jsonRequest:success', data.result
-
-              else
-                options.error data, 'Either received empty result or missing success callback', options
 
             else
               options.error data, 'Request failed', options
