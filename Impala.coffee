@@ -66,17 +66,16 @@ define (require) ->
       # defined API required
       if not _.isUndefined(options.api)
         # prepare API url
-        @getConfigByKey('url').api = $.trim @getConfigByKey('url').api
+        serviceUrl = $.trim @getConfigByKey('url').service
 
         # api root
-        apiRoot = "#{@getConfigByKey('url').api}"
-        apiRoot = "#{@getConfigByKey('url').api}/mock" if options.mock is true
+        serviceUrl = "#{serviceUrl}/mock" if options.mock is true
 
         # determine domain by api
         options.domain = options.api.toLowerCase().split('.').shift()
 
         # build url
-        options.url = apiRoot + '/' + options.domain + '/'
+        options.url = "#{serviceUrl}/#{options.domain}/"
 
         # set success handler if missing
         if _.isUndefined(options.success)
