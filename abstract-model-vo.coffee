@@ -11,6 +11,7 @@ define (require) ->
 
     setModel: (model) ->
       @model = model if model?
+      @
 
     # -------------------------------------------
 
@@ -28,12 +29,7 @@ define (require) ->
 
     setByKey: (key, val) ->
       @model.set key, val
-
-    # -------------------------------------------
-
-    export: (dto) ->
-      dto = new dto()
-      dto.export @
+      @
 
   #################################################
 
