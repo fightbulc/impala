@@ -1,7 +1,7 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  pubsub = require 'pubsub'
+  Pubsub = require 'pubsub'
 
   ###############################################
 
@@ -107,13 +107,20 @@ define (require) ->
 
           # on success
           success: (data, status) =>
-            if not _.isUndefined data.result
-              if not _.isUndefined(options.success)
-                options.success data.result, status
-                pubsub.publish 'jsonRequest:success', data.result
+            if _.isUndefined data.result or _.isUndefined options.success
+              return options.error data, 'Request failed', options
 
-            else
-              options.error data, 'Request failed', options
+            # prepage args for success call
+            args = [ data.result, status ]
+
+            # if this is a request via backbone add model
+            args.unshift options.model if typeof options.model isnt 'undefined'
+
+            # call success handler
+            options.success.apply @, args
+
+            # publish results
+            Pubsub.publish 'jsonRequest:success', data.result
 
           # on fail
           error: (jqXHR, response, errorThrown) =>
@@ -122,11 +129,12 @@ define (require) ->
             catch error
               response = null
 
-            if not _.isUndefined options.error
-              options.error response, errorThrown, options
+            # missing error handler
+            if _.isUndefined options.error
+              return @logError ["#{__private.moduleName()}.jsonRequest", response, errorThrown, options]
 
-            else
-              @logError ["#{__private.moduleName()}.jsonRequest", response, errorThrown, options]
+            # call error handler
+            options.error response, errorThrown, options
 
         # no API defined
       else
