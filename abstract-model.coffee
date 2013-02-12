@@ -1,14 +1,14 @@
 define (require) ->
   _ = require 'underscore'
   Backbone = require 'backbone'
-  imp = require 'impala'
-  pubsub = require 'pubsub'
+  Imp = require 'impala'
+  Pubsub = require 'pubsub'
 
   ###############################################
 
   Backbone.sync = (method, model, options) ->
     options.error = (response, errorThrown, options) ->
-      pubsub.publish
+      Pubsub.publish
         channel: 'model:error'
         data: [
           error: errorThrown
@@ -16,7 +16,11 @@ define (require) ->
           options: options
         ]
 
-    imp.jsonRequest options
+    # add model to options
+    options.model = model
+
+    # send json request
+    Imp.jsonRequest options
 
   ###############################################
 
@@ -73,7 +77,7 @@ define (require) ->
     # -------------------------------------------
 
     request: (options) ->
-      imp.jsonRequest @_prepareRequestOptions options
+      Imp.jsonRequest @_prepareRequestOptions options
 
     # -------------------------------------------
 
