@@ -9,7 +9,7 @@ define (require) ->
 
   class StateWidget extends Backbone.View
     events:
-      'click a.stateOff, a.stateOn': 'handleState'
+      'click a.state-off, a.state-on': 'handleState'
 
     # -------------------------------------------
 
@@ -59,23 +59,23 @@ define (require) ->
 
     getWidgetHtml: ->
       '
-      <span class="stateWidget">
-        <a href="#" class="stateOff">' + @getStateOffHtml() + '</a>
-        <a href="#" class="stateOn">' + @getStateOnHtml() + '</a>
+      <span class="state-widget">
+        <a href="#" class="state-off">' + @getStateOffHtml() + '</a>
+        <a href="#" class="state-on">' + @getStateOnHtml() + '</a>
       </span>
       '
 
     # -------------------------------------------
 
     showStateOff: ->
-      @$el.find('.stateOn').hide()
-      @$el.find('.stateOff').fadeIn(250)
+      @$el.find('.state-on').hide()
+      @$el.find('.state-off').fadeIn(250)
 
     # -------------------------------------------
 
     showStateOn: ->
-      @$el.find('.stateOff').hide()
-      @$el.find('.stateOn').fadeIn(250)
+      @$el.find('.state-off').hide()
+      @$el.find('.state-on').fadeIn(250)
 
     # -------------------------------------------
 
