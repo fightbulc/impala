@@ -2,7 +2,7 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   Backbone = require 'backbone'
-  imp = require 'impala'
+  Imp = require 'impala'
 
   ###############################################
 
@@ -24,7 +24,7 @@ define (require) ->
     # -------------------------------------------
 
     _addSubView: (name, viewInstance) ->
-      imp.log [@moduleName, '_addSubView', name]
+      Imp.log [@moduleName, '_addSubView', name]
       @_getSubViews()[name] = viewInstance
 
     # -------------------------------------------

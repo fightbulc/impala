@@ -1,8 +1,8 @@
 define (require) ->
   _ = require 'underscore'
   Backbone = require 'backbone'
-  imp = require 'impala'
-  pubsub = require 'pubsub'
+  Imp = require 'impala'
+  Pubsub = require 'pubsub'
 
   ###############################################
 
@@ -14,38 +14,38 @@ define (require) ->
 
   Backbone.Router.extend
     initialize: ->
-      imp.log [__private.moduleName(), 'init', imp.getConfig()]
+      Imp.log [__private.moduleName(), 'init', Imp.getConfig()]
 
       #
       # Init history
       #
       Backbone.history.stop()
-      Backbone.history.start root: imp.getConfigByKey('url').public
+      Backbone.history.start root: Imp.getConfigByKey('url').public
 
       #
       # listen for redirect requests
       #
-      pubsub.subscribe 'router:redirect', @redirect
+      Pubsub.subscribe 'router:redirect', @redirect
 
       #
       # listen for url updates
       #
-      pubsub.subscribe 'router:update', @updateUrl
+      Pubsub.subscribe 'router:update', @updateUrl
 
     # -------------------------------------------
 
     redirect: (route) ->
-      imp.log [__private.moduleName(), 'redirect', route]
+      Imp.log [__private.moduleName(), 'redirect', route]
       Backbone.history.navigate "!/#{route}", trigger: true
 
     # -------------------------------------------
 
     updateUrl: (route) ->
-      imp.log [__private.moduleName(), 'updateUrl', route]
+      Imp.log [__private.moduleName(), 'updateUrl', route]
       Backbone.history.navigate "!/#{route}"
 
     # -------------------------------------------
 
     getCurrentRoute: ->
-      imp.log [__private.moduleName(), 'getCurrentRoute']
+      Imp.log [__private.moduleName(), 'getCurrentRoute']
       Backbone.history.fragment.replace '!/', ''
