@@ -1,8 +1,8 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  imp = require 'impala'
-  pubsub = require 'pubsub'
+  Imp = require 'impala'
+  Pubsub = require 'pubsub'
 
   #################################################
 
@@ -17,7 +17,7 @@ define (require) ->
     # -------------------------------------------
 
     getFacebookConfig: ->
-      conf = imp.getConfigByKey('facebook')
+      conf = Imp.getConfigByKey('facebook')
 
       # force facebook to get data from server
       conf.forceRoundtrip = false if _.isUndefined(conf.forceRoundtrip)
@@ -54,12 +54,12 @@ define (require) ->
       #
       # parse XFBML
       #
-      pubsub.subscribe('facebook:parsexfbml', -> FB.XFBML.parse())
+      Pubsub.subscribe('facebook:parsexfbml', -> FB.XFBML.parse())
 
     # -------------------------------------------
 
     loadSdk: (d) ->
-      imp.log [__private.moduleName(), 'loadSDK']
+      Imp.log [__private.moduleName(), 'loadSDK']
 
       # create fb-root container
       $('body').prepend($('<div/>').attr('id', 'fb-root'))
@@ -70,26 +70,26 @@ define (require) ->
       js = d.createElement('script')
       js.id = id
       js.async = true
-      js.src = "//connect.facebook.net/en_US/all.js"
+      js.src = "http://connect.facebook.net/en_US/all.js"
       s = d.getElementsByTagName('head')[0].appendChild(js)
 
       # handle load error
       s.onerror = (data) ->
-        pubsub.publish 'facebook:sdkLoadFail', data
+        Pubsub.publish 'facebook:sdkLoadFail', data
 
     # -------------------------------------------
 
     initEventListeners: ->
-      imp.log [__private.moduleName(), 'initEventListeners']
+      Imp.log [__private.moduleName(), 'initEventListeners']
 
       initCallback = (response) =>
-        imp.log [__private.moduleName(), 'event:getLoginStatus', response]
+        Imp.log [__private.moduleName(), 'event:getLoginStatus', response]
 
         #
         # Set connection state
         #
-        pubsub.subscribe 'facebook:authHasSession', @setConnectionState
-        pubsub.subscribe 'facebook:authNoSession', @setConnectionState
+        Pubsub.subscribe 'facebook:authHasSession', @setConnectionState
+        Pubsub.subscribe 'facebook:authNoSession', @setConnectionState
 
         #
         # Auth
@@ -97,17 +97,17 @@ define (require) ->
 
         # user gets auth prompt
         FB.Event.subscribe 'auth.prompt', (response) ->
-          imp.log [__private.moduleName(), 'event:auth.prompt']
-          pubsub.publish 'facebook:authPrompt', response
+          Imp.log [__private.moduleName(), 'event:auth.prompt']
+          Pubsub.publish 'facebook:authPrompt', response
 
         # user session state changes
         FB.Event.subscribe 'auth.sessionChange', (response) =>
-          imp.log [__private.moduleName(), 'event:auth.sessionChange']
+          Imp.log [__private.moduleName(), 'event:auth.sessionChange']
           @handleSessionRequestResponse(response)
 
         # user session state changes
         FB.Event.subscribe 'auth.statusChange', (response) =>
-          imp.log [__private.moduleName(), 'event:auth.statusChange']
+          Imp.log [__private.moduleName(), 'event:auth.statusChange']
           @handleSessionRequestResponse(response)
 
         #
@@ -116,11 +116,11 @@ define (require) ->
 
         # user liked
         FB.Event.subscribe 'edge.create', (response) ->
-          pubsub.publish 'facebook:createdLike', response
+          Pubsub.publish 'facebook:createdLike', response
 
         # user unliked
         FB.Event.subscribe 'edge.remove', (response) ->
-          pubsub.publish 'facebook:removedLike', response
+          Pubsub.publish 'facebook:removedLike', response
 
         #
         # Comment
@@ -128,11 +128,11 @@ define (require) ->
 
         # user commented
         FB.Event.subscribe 'comment.create', (response) ->
-          pubsub.publish 'facebook:createdComment', response
+          Pubsub.publish 'facebook:createdComment', response
 
         # user removed comment
         FB.Event.subscribe 'comment.remove', (response) ->
-          pubsub.publish 'facebook:removedComment', response
+          Pubsub.publish 'facebook:removedComment', response
 
         #
         # Message
@@ -140,25 +140,25 @@ define (require) ->
 
         # message send
         FB.Event.subscribe 'message.send', (response) ->
-          pubsub.publish 'facebook:sentMessage', response
+          Pubsub.publish 'facebook:sentMessage', response
 
         #
         # App requests
         #
 
         # listen for login via redirect
-        pubsub.subscribe 'facebook:loginViaRedirect', @loginViaRedirect
+        Pubsub.subscribe 'facebook:loginViaRedirect', @loginViaRedirect
 
         # listen for login via popup
-        pubsub.subscribe 'facebook:loginViaPopup', @loginViaPopup
+        Pubsub.subscribe 'facebook:loginViaPopup', @loginViaPopup
 
         # listen for logout
-        pubsub.subscribe 'facebook:logout', @logout
+        Pubsub.subscribe 'facebook:logout', @logout
 
         # At that point facebook loaded & requested the
         # current session. Lets role!
 
-        pubsub.publish 'facebook:ready', true
+        Pubsub.publish 'facebook:ready', true
 
         #
         # handle passed response
@@ -175,40 +175,40 @@ define (require) ->
     # -------------------------------------------
 
     handleSessionRequestResponse: (response) ->
-      imp.log [__private.moduleName(), 'handleSessionRequestResponse', response]
+      Imp.log [__private.moduleName(), 'handleSessionRequestResponse', response]
 
       switch response.status
         when 'connected'
-          imp.log [__private.moduleName(), 'authHasSession']
+          Imp.log [__private.moduleName(), 'authHasSession']
 
           #
           # we got a session and our
           # app is authorized
           #
-          pubsub.publish 'facebook:authHasSession', response
+          Pubsub.publish 'facebook:authHasSession', response
 
         when 'not_authorized'
-          imp.log [__private.moduleName(), 'authNotAuthorized / authNoSession']
+          Imp.log [__private.moduleName(), 'authNotAuthorized / authNoSession']
 
           #
           # we got a facebook session but our
           # app is not authorized
           #
-          pubsub.publish 'facebook:authNoSession', response
-          pubsub.publish 'facebook:authNotAuthorized', response
+          Pubsub.publish 'facebook:authNoSession', response
+          Pubsub.publish 'facebook:authNotAuthorized', response
 
         else
-          imp.log [__private.moduleName(), 'authNoSession']
+          Imp.log [__private.moduleName(), 'authNoSession']
 
           #
           # report that we dont have a session
           #
-          pubsub.publish 'facebook:authNoSession', response
+          Pubsub.publish 'facebook:authNoSession', response
 
       #
       # report that we got connection state
       #
-      pubsub.publish 'facebook:hasConnectionState', response
+      Pubsub.publish 'facebook:hasConnectionState', response
 
     # -------------------------------------------
 
@@ -223,12 +223,12 @@ define (require) ->
     # -------------------------------------------
 
     getLoginUrl: ->
-      imp.log [__private.moduleName(), 'getLoginUrl']
+      Imp.log [__private.moduleName(), 'getLoginUrl']
 
       params =
         appId: __private.getFacebookConfig()['appId']
         scope: __private.getFacebookConfig()['permissions'].join(',')
-        callbackUrl: encodeURIComponent [imp.getFacebookConfig()['permissions'].join(','), imp.getFacebookConfig()['callbackUrl']].join ''
+        callbackUrl: encodeURIComponent [Imp.getFacebookConfig()['permissions'].join(','), Imp.getFacebookConfig()['callbackUrl']].join ''
 
       authUrl = getConf().authUrl
       authUrl = authUrl.replace("{{#{key}}}", val) for key,val of params
@@ -237,19 +237,19 @@ define (require) ->
     # -------------------------------------------
 
     loginViaRedirect: ->
-      imp.log [__private.moduleName(), 'loginViaRedirect']
+      Imp.log [__private.moduleName(), 'loginViaRedirect']
       window.location.href = @getLoginUrl()
 
     # -------------------------------------------
 
     loginViaPopup: (callback) ->
-      imp.log [__private.moduleName(), 'loginViaPopup']
+      Imp.log [__private.moduleName(), 'loginViaPopup']
 
       #
       # cancel handling
       #
       cancelHandle = (response) ->
-        imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
+        Imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
 
       #
       # authenticate via popup
@@ -259,26 +259,26 @@ define (require) ->
     # -------------------------------------------
 
     logout: (callback) ->
-      imp.log [__private.moduleName(), 'logout']
+      Imp.log [__private.moduleName(), 'logout']
       FB.logout (response) ->
         callback() if callback isnt undefined
 
   # -------------------------------------------
 
     getPermissions: (responseCallback) ->
-      imp.log [__private.moduleName(), 'getPermissions']
+      Imp.log [__private.moduleName(), 'getPermissions']
       FB.api '/me/permissions', responseCallback
 
     # -------------------------------------------
 
     requestPermissions: (permissions, callback) ->
-      imp.log [__private.moduleName(), 'requestPermissions', permissions]
+      Imp.log [__private.moduleName(), 'requestPermissions', permissions]
       FB.login callback, scope: permissions.join ','
 
     # -------------------------------------------
 
     sendAppRequest: (options) ->
-      imp.log [__private.moduleName(), 'sendAppRequest', options]
+      Imp.log [__private.moduleName(), 'sendAppRequest', options]
 
       requestOptions =
         method: 'apprequests'
@@ -290,7 +290,7 @@ define (require) ->
       # set default callback if none passed
       if _.isUndefined options.callback
         options.callback = (response) ->
-          imp.log [__private.moduleName(), 'sendAppRequest:callback', response]
+          Imp.log [__private.moduleName(), 'sendAppRequest:callback', response]
 
       # send request
       FB.ui requestOptions, options.callback
@@ -298,35 +298,35 @@ define (require) ->
     # -------------------------------------------
 
     deleteAppRequest: (options) ->
-      imp.log [__private.moduleName(), 'deleteAppRequest', options]
+      Imp.log [__private.moduleName(), 'deleteAppRequest', options]
 
       if not _.isUndefined(options.requestId) and not _.isUndefined(options.recipientFbUserId)
         # set default callback if none passed
         if _.isUndefined(options.callback)
           options.callback = (response) ->
-            imp.log [__private.moduleName(), 'deleteAppRequest:callback', response]
+            Imp.log [__private.moduleName(), 'deleteAppRequest:callback', response]
 
         FB.api "#{options.requestId}_#{options.recipientFbUserId}", 'DELETE', options.callback
       else
-        imp.logError [__private.moduleName(), 'deleteAppRequest', 'missing params: requestId and/or recipientFbUserId']
+        Imp.logError [__private.moduleName(), 'deleteAppRequest', 'missing params: requestId and/or recipientFbUserId']
 
     # -------------------------------------------
 
     getAppRequestDialog: (options) ->
-      imp.log [__private.moduleName(), 'getAppRequestDialog', options]
+      Imp.log [__private.moduleName(), 'getAppRequestDialog', options]
       options.fbUserIds = []
       @sendAppRequest options
 
     # -------------------------------------------
 
     getLikeButton: (options) ->
-      imp.log [__private.moduleName(), 'getLikeButton', JSON.stringify(options)]
+      Imp.log [__private.moduleName(), 'getLikeButton', JSON.stringify(options)]
 
       if not _.isUndefined(options.href)
         params = []
 
         # set defaults
-        options.onComplete ?= (button) -> imp.log [__private.moduleName(), 'getLikeButton:onComplete', button]
+        options.onComplete ?= (button) -> Imp.log [__private.moduleName(), 'getLikeButton:onComplete', button]
         options.layout ?= 'button_count'
         options.show_faces ?= false
         options.font ?= 'lucida grande'
@@ -352,12 +352,12 @@ define (require) ->
         options.onComplete fbButton
 
       else
-        imp.logError [__private.moduleName(), 'getLikeButton', 'missing options.href']
+        Imp.logError [__private.moduleName(), 'getLikeButton', 'missing options.href']
 
     # -------------------------------------------
 
     createStreamPost: (options) ->
-      imp.log [__private.moduleName(), 'createStreamPost', options]
+      Imp.log [__private.moduleName(), 'createStreamPost', options]
 
       params =
         link: options.link
@@ -368,13 +368,13 @@ define (require) ->
       params.caption if not _.isUndefined options.caption
       params.description if not _.isUndefined options.description
 
-      FB.api '/me/feed', 'POST', params, (response) -> imp.log [__private.moduleName(), 'createStreamPost:callback', response]
+      FB.api '/me/feed', 'POST', params, (response) -> Imp.log [__private.moduleName(), 'createStreamPost:callback', response]
 
     # -------------------------------------------
 
     deleteStreamPost: (postId) ->
-      imp.log [__private.moduleName(), 'deleteStreamPost', postId]
-      FB.api postId, 'DELETE', (response) -> imp.log [__private.moduleName(), 'deleteStreamPost:callback', response] if not _.isEmpty(postId)
+      Imp.log [__private.moduleName(), 'deleteStreamPost', postId]
+      FB.api postId, 'DELETE', (response) -> Imp.log [__private.moduleName(), 'deleteStreamPost:callback', response] if not _.isEmpty(postId)
 
     # -------------------------------------------
 
