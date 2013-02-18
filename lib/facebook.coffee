@@ -399,6 +399,16 @@ define (require) ->
     getUserDetails: (fbUserId, callback) ->
       FB.api "/#{fbUserId}", callback
 
+    # -------------------------------------------
+
+    parseDOM: ->
+      imp.log [__private.moduleName(), 'parseDOM']
+      if not _.isUndefined window.FB
+        window.FB.XFBML.parse()
+      else
+        setTimeout((=> @parseDOM()), 3000)
+
+
   ###############################################
 
   __public
