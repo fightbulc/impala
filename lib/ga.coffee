@@ -10,6 +10,6 @@ define (require) ->
   ###############################################
 
   __public =
-    track: (options) ->
-      imp.log [__private.moduleName(), 'track', options.page]
-      _gaq.push ['_trackPageview', "#!/#{options.page}"]
+    track: (page) ->
+      imp.log [__private.moduleName(), 'track', page]
+      _gaq.push ['_trackPageview', "#!/#{page}"]
