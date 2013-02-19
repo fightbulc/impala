@@ -2,39 +2,41 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   Backbone = require 'backbone'
-  imp = require 'impala'
-  instance = require 'instance'
+  Imp = require 'impala'
+  Instance = require 'instance'
 
   ###############################################
 
   class StateWidget extends Backbone.View
     events:
-      'click a.state-off, a.state-on': 'handleState'
+      'click .state-off, .state-on': 'handleState'
 
     # -------------------------------------------
 
     initialize: ->
+      Imp.log ['state-widget', 'initialize', @el, @model]
+
       error = false
 
       # check if we got what we need
       if not @el
-        imp.logError ['StateWidget', 'Missing el']
+        Imp.logError ['StateWidget', 'Missing el']
         error = true
 
       if not @model
-        imp.logError ['StateWidget', 'Missing model']
+        Imp.logError ['StateWidget', 'Missing model']
         error = true
 
       if not @options.stateField
-        imp.logError ['StateWidget', 'Missing options.stateField']
+        Imp.logError ['StateWidget', 'Missing options.stateField']
         error = true
 
       if not @options.callbackStateOn
-        imp.logError ['StateWidget', 'Missing callbackStateOn function']
+        Imp.logError ['StateWidget', 'Missing callbackStateOn function']
         error = true
 
       if not @options.callbackStateOff
-        imp.logError ['StateWidget', 'Missing callbackStateOff function']
+        Imp.logError ['StateWidget', 'Missing callbackStateOff function']
         error = true
 
       # if all cool start the view
@@ -69,13 +71,13 @@ define (require) ->
 
     showStateOff: ->
       @$el.find('.state-on').hide()
-      @$el.find('.state-off').fadeIn(250)
+      @$el.find('.state-off').show()
 
     # -------------------------------------------
 
     showStateOn: ->
       @$el.find('.state-off').hide()
-      @$el.find('.state-on').fadeIn(250)
+      @$el.find('.state-on').show()
 
     # -------------------------------------------
 
@@ -103,12 +105,14 @@ define (require) ->
     # -------------------------------------------
 
     handleState: (e) ->
+      Imp.log ['state-widget', 'handleState', e]
+
       e.preventDefault()
       e.stopPropagation()
 
       # make sure that we have a user session
-      if instance.getManager('user').hasSession() is false
-        instance.getManager('user').requestUserLogin e
+      if Instance.getManager('user').hasSession() is false
+        Instance.getManager('user').requestUserLogin e
         return
 
       # state off
