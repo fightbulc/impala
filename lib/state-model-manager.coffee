@@ -142,7 +142,7 @@ define (require) ->
     reset: (newModelIdsMany) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'reset', newModelIdsMany]
 
-      # sync before reset to release models we dont longer relation
+      # sync before reset to release models we dont longer relate to
       # PS: we still love them, though ^^
       @_releaseOldModels newModelIdsMany
 
