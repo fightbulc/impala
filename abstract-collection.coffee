@@ -61,21 +61,16 @@ define (require) ->
 
     # -------------------------------------------
 
-    sortBy: (key) ->
-      # remember set key
-      _cacheKey = @sortingKey
-
-      # sort by that key
-      @sortingKey = key
+    sortBy: (options = {}) ->
+      # set options
+      options.key = @sortingKey if not options.key?
+      options.reverse = false if not options.reverse?
 
       # get sorted models
-      models = _.sortBy @models, (model) -> model.get key
+      models = _.sortBy @models, (model) -> model.get options.key
 
       # reverse if enabled
-      models.reverse() if @reverseSorting
-
-      # set back to cached key
-      @sortingKey = _cacheKey
+      models.reverse() if options.reverse isnt false
 
       models
 
