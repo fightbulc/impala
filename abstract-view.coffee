@@ -11,6 +11,11 @@ define (require) ->
 
     # -------------------------------------------
 
+    events: (childEvents = {}) ->
+      _.extend childEvents, {}
+
+    # -------------------------------------------
+
     _getSubViews: ->
       @subViews ?= {}
 
@@ -46,11 +51,6 @@ define (require) ->
       # remove existing subViews
       if not _.isEmpty subViews
         @_removeSubView name for name, instance of subViews
-
-    # -------------------------------------------
-
-    events: (childEvents = {}) ->
-      _.extend childEvents, {}
 
   ###############################################
 
