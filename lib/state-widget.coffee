@@ -14,8 +14,6 @@ define (require) ->
     # -------------------------------------------
 
     initialize: ->
-      Imp.log ['state-widget', 'initialize', @el, @model]
-
       error = false
 
       # check if we got what we need
