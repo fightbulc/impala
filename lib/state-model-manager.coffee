@@ -1,16 +1,16 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  imp = require 'impala'
-  base = require 'base'
-  instance = require 'instance'
+  Imp = require 'impala'
+  Base = require 'base'
+  Instance = require 'instance'
 
   ###############################################
 
   __private =
     moduleName: ->
       'manager.StateModel'
-      
+
   ###############################################
 
   class StateModelManager
@@ -21,7 +21,7 @@ define (require) ->
     # -------------------------------------------
 
     _setCollectionInstance: (collectionInstanceName) ->
-      @collectionInstance = instance.getCollection collectionInstanceName
+      @collectionInstance = Instance.getCollection collectionInstanceName
       @
 
     # -------------------------------------------
@@ -76,7 +76,7 @@ define (require) ->
 
     _refresh: ->
       for modelId in @_getRelationsModelIds()
-        # TODO: implement getById in case model is not in collection
+        # TODO: Implement getById in case model is not in collection
         model = @_getCollectionInstance().get modelId
 
         if model?
@@ -98,7 +98,7 @@ define (require) ->
           # if modelId is not longer part of relations objects
           model = @_getCollectionInstance().get modelId
 
-          imp.log ['RELEASE', @_getCollectionInstance(), modelId, model]
+          Imp.log ['RELEASE', @_getCollectionInstance(), modelId, model]
 
           # if model was pulled in to collection
           # set relations to false
@@ -111,7 +111,7 @@ define (require) ->
     # -------------------------------------------
 
     constructor: (collectionInstanceName, hookAttributeName, relationsModelIds) ->
-      imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
+      Imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
 
       # set initials
       @_setCollectionInstance collectionInstanceName
@@ -128,27 +128,27 @@ define (require) ->
     # -------------------------------------------
 
     add: (modelId) ->
-      imp.log [__private.moduleName(), '>>>', 'add', modelId]
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'add', modelId]
       @_addRelationsModelId modelId
 
     # -------------------------------------------
 
     remove: (modelId) ->
-      imp.log [__private.moduleName(), '>>>', 'remove', modelId]
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'remove', modelId]
       @_removeRelationsModelId modelId
 
     # -------------------------------------------
 
     reset: (newModelIdsMany) ->
-      imp.log [__private.moduleName(), '>>>', 'reset', newModelIdsMany]
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'reset', newModelIdsMany]
 
-      # sync before reset to release models we dont longer relation
+      # sync before reset to release models we dont longer relate to
       # PS: we still love them, though ^^
       @_releaseOldModels newModelIdsMany
 
     # -------------------------------------------
 
     empty: ->
-      imp.log [__private.moduleName(), '>>>', 'empty']
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'empty']
 
       @_releaseOldModels([])

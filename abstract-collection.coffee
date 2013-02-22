@@ -6,6 +6,7 @@ define (require) ->
 
   Backbone.Collection.extend
     reverseSorting: false
+    sortingKey: 'id'
 
     # -------------------------------------------
 
@@ -60,12 +61,22 @@ define (require) ->
 
     # -------------------------------------------
 
-    sortBy: ->
-      #
-      # Override to provide a reverse sorting trigger
-      #
-      models = _.sortBy(@models, @comparator)
+    sortBy: (key) ->
+      # remember set key
+      _cacheKey = @sortingKey
+
+      # sort by that key
+      @sortingKey = key
+
+      # get sorted models
+      models = _.sortBy @models, (model) -> model.get key
+
+      # reverse if enabled
       models.reverse() if @reverseSorting
+
+      # set back to cached key
+      @sortingKey = _cacheKey
+
       models
 
     # -------------------------------------------
