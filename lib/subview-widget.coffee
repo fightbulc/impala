@@ -16,6 +16,7 @@ define (require) ->
     subviewClass: null
     subviewClassParameters: {}
     callback: null
+    sortingOptions: {}
 
     # -------------------------------------------
 
@@ -70,6 +71,19 @@ define (require) ->
 
     # -------------------------------------------
 
+    _getSortingOptions: ->
+      @sortingOptions
+
+    # -------------------------------------------
+
+    setSortingOptions: (key, reverse = false) ->
+      @sortingOptions =
+        key: key
+        reverse: reverse
+      @
+
+    # -------------------------------------------
+
     _getSubviewClass: ->
       @subviewClass
 
@@ -113,7 +127,11 @@ define (require) ->
       # class parameters
       parameters = @_getSubviewClassParameters()
 
-      @subCollection.each (model) =>
+      # sort models if demanded
+      models = @subCollection.sortBy @_getSortingOptions() if @_getSortingOptions()?
+
+      # build views
+      for model in models
         # attach model to parameters
         parameters.model = model
 
