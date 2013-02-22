@@ -71,7 +71,6 @@ define (require) ->
     #   onSuccess: what should be done when elements come into view
     #
     loadLazyElements: (options) ->
-
       #
       # Trigger on viewport being scrolled
       #
