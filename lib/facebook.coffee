@@ -54,7 +54,8 @@ define (require) ->
       #
       # parse XFBML
       #
-      Pubsub.subscribe 'facebook:parsexfbml', ($data = @) -> FB.XFBML.parse $data[0]
+      Pubsub.subscribe 'facebook:ready', ->
+        Pubsub.subscribe 'facebook:parsexfbml', ($data = @) -> FB.XFBML.parse $data[0]
 
     # -------------------------------------------
 
