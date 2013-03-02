@@ -4,6 +4,7 @@ define (require) ->
   Imp = require 'impala'
   Base = require 'base'
   Instance = require 'instance'
+  Pubsub = require 'pubsub'
 
   ###############################################
 
@@ -14,14 +15,15 @@ define (require) ->
   ###############################################
 
   class StateModelManager
+    collectionInstanceName: null
     collectionInstance: null
     hookAttributeName: null
     relationsModelIds: []
 
     # -------------------------------------------
 
-    _setCollectionInstance: (collectionInstanceName) ->
-      @collectionInstance = Instance.getCollection collectionInstanceName
+    _setCollectionInstanceName: (collectionInstanceName) ->
+      @collectionInstanceName = collectionInstanceName
       @
 
     # -------------------------------------------
@@ -48,7 +50,16 @@ define (require) ->
 
     # -------------------------------------------
 
+    _getCollectionInstanceName: ->
+      @collectionInstanceName
+
+    # -------------------------------------------
+
     _getCollectionInstance: ->
+      # create instance if not existing
+      @collectionInstance = Instance.getCollection @_getCollectionInstanceName() if not @collectionInstance?
+
+      # pass back
       @collectionInstance
 
     # -------------------------------------------
@@ -64,27 +75,17 @@ define (require) ->
     # -------------------------------------------
 
     _addRelationsModelId: (modelId) ->
+      # add modelId
       @relationsModelIds.push modelId
+
+      # refresh models
       @_refresh()
 
     # -------------------------------------------
 
     _removeRelationsModelId: (modelId) ->
+      # renew models without the one we want to remove
       @_releaseOldModels _.without @relationsModelIds, modelId
-
-    # -------------------------------------------
-
-    _refresh: ->
-      for modelId in @_getRelationsModelIds()
-        # TODO: Implement getById in case model is not in collection
-        model = @_getCollectionInstance().get modelId
-
-        if model?
-          # set relations = true
-          # this should trigger the model's change event
-          # and that should trigger a render-relation process
-          # if the model is hooked to a view
-          model.setByKey @_getHookAttributeName(), true
 
     # -------------------------------------------
 
@@ -104,9 +105,25 @@ define (require) ->
           # set relations to false
           model.setByKey @_getHookAttributeName(), false if model?
 
+      # set new model ids
       @_setRelationsModelIds newModelIdsMany
 
+      # refresh models
       @_refresh()
+
+    # -------------------------------------------
+
+    _refresh: ->
+      for modelId in @_getRelationsModelIds()
+        # TODO: Implement getById in case model is not in collection
+        model = @_getCollectionInstance().get modelId
+
+        if model?
+          # set relations = true
+          # this should trigger the model's change event
+          # and that should trigger a render-relation process
+          # if the model is hooked to a view
+          model.setByKey @_getHookAttributeName(), true
 
     # -------------------------------------------
 
@@ -114,7 +131,7 @@ define (require) ->
       Imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
 
       # set initials
-      @_setCollectionInstance collectionInstanceName
+      @_setCollectionInstanceName collectionInstanceName
       @_setHookAttributeName hookAttributeName
       @_setRelationsModelIds relationsModelIds
 
@@ -129,13 +146,23 @@ define (require) ->
 
     add: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'add', modelId]
+
+      # add state to model
       @_addRelationsModelId modelId
+
+      # tell the world
+      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:add", modelId
 
     # -------------------------------------------
 
     remove: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'remove', modelId]
+
+      # remove state from model
       @_removeRelationsModelId modelId
+
+      # tell the world
+      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:remove", modelId
 
     # -------------------------------------------
 
@@ -146,9 +173,16 @@ define (require) ->
       # PS: we still love them, though ^^
       @_releaseOldModels newModelIdsMany
 
+      # tell the world
+      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:reset", newModelIdsMany
+
     # -------------------------------------------
 
     empty: ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'empty']
 
+      # release all models
       @_releaseOldModels([])
+
+      # tell the world
+      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:empty"
