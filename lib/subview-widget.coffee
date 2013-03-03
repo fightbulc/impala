@@ -1,8 +1,8 @@
 define (require) ->
   _ = require 'underscore'
   Imp = require 'impala'
-  AbstractView = require 'abstractView'
-  AbstractCollection = require 'abstractCollection'
+  AbstractView = require 'abstract-view'
+  AbstractCollection = require 'abstract-collection'
   Pubsub = require 'pubsub'
 
   ###############################################
@@ -22,7 +22,6 @@ define (require) ->
 
     initialize: ->
       Imp.log [@moduleName, '>>>', 'init']
-      _.bindAll @, '_renderAll'
 
     # -------------------------------------------
 
@@ -54,7 +53,7 @@ define (require) ->
         @subCollection = new AbstractCollection()
 
         # listen for reset
-        @subCollection.on 'reset', @_renderAll
+        @subCollection.on 'reset', => @_renderAll()
 
       @subCollection
 

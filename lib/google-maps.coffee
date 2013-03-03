@@ -4,7 +4,7 @@ define (require) ->
   imp = require 'impala'
   pubsub = require 'pubsub'
   template = require 'template'
-  template.addTemplate 'InfoWindow', require 'text!app/tmpl/Map/InfoWindow.mustache'
+  template.addTemplate 'InfoWindow', require 'text!app/tmpl/map/info-window.mustache'
 
 
   ###############################################

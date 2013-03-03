@@ -95,7 +95,7 @@ define (require) ->
           #
           # Get elemts current top pos
           #
-          elmRelativePositionTop = $elm.position().top - scrollTop
+          elmRelativePositionTop = $elm.offset().top - scrollTop
 
           #
           # We filter all unflagged elements and look
