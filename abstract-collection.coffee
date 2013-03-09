@@ -61,7 +61,7 @@ define (require) ->
 
     # -------------------------------------------
 
-    sortBy: (options = {}) ->
+    sortByKey: (options = {}) ->
       # set options
       options.key = @sortingKey if not options.key?
       options.reverse = false if not options.reverse?
