@@ -67,7 +67,21 @@ define (require) ->
       options.reverse = false if not options.reverse?
 
       # get sorted models
-      models = _.sortBy @models, (model) -> model.get options.key
+      models = @models.sort (a, b) ->
+        a = a.get(options.key)
+        b = b.get(options.key)
+
+        #
+        # localeCompare for strings
+        #
+        return a.localeCompare(b) if typeof a is 'string' and typeof b is 'string'
+
+        #
+        # oldschool for everything else
+        #
+        return -1 if a < b
+        return 1 if b > a
+        return 0
 
       # reverse if enabled
       models.reverse() if options.reverse isnt false
