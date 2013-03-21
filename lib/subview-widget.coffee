@@ -13,6 +13,7 @@ define (require) ->
     parentCollection: null
     subCollection: null
     subviewIds: []
+    subviewById: {}
     subviewClass: null
     subviewClassParameters: {}
     callback: null
@@ -129,16 +130,36 @@ define (require) ->
       # sort models if demanded
       models = @subCollection.sortByKey @_getSortingOptions() if @_getSortingOptions()?
 
+      @subviewById = {}
+
       # build views
       for model in models
         # attach model to parameters
         parameters.model = model
 
         # create subviewClass instance
-        (new (@_getSubviewClass()) parameters).render().$el.appendTo @$el
+        @subviewById[model.id] = view = new (@_getSubviewClass()) parameters
+        view.render().$el.appendTo @$el
 
         # tell the app when we are done
         (@_getCallback()) @$el if @_getSubCollection().isLast model
+
+    # -------------------------------------------
+
+    remove: (id) ->
+      collection = @_getSubCollection()
+      model = collection.get(id)
+
+      # no model no pain
+      return if not model?
+
+      # remove the view from DOM and hash
+      if (view = @subviewById[id])?
+        view.$el.remove()
+        delete @subviewById[id]
+
+      # remove the model from the collection
+      collection.remove(model)
 
     # -------------------------------------------
 
