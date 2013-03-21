@@ -138,11 +138,7 @@ define (require) ->
 
     # -------------------------------------------
 
-    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds, relationsModelCount) ->
-      if relationsModelCount is undefined
-        relationsModelCount = 0
-        relationsModelCount = relationsModelIds.length if relationsModelIds?
-
+    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds = [], relationsModelCount = relationsModelIds.length) ->
       Imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
 
       # set initials
