@@ -4,7 +4,7 @@ define (require) ->
   Imp = require 'impala'
   Base = require 'base'
   Instance = require 'instance'
-  Pubsub = require 'pubsub'
+  AbstractManager = require 'abstract-manager'
 
   ###############################################
 
@@ -14,7 +14,7 @@ define (require) ->
 
   ###############################################
 
-  class StateModelManager
+  class StateModelManager extends AbstractManager
     collectionInstanceName: null
     collectionInstance: null
     hookAttributeName: null
@@ -165,6 +165,11 @@ define (require) ->
 
     # -------------------------------------------
 
+    getIds: ->
+      @relationsModelIds
+
+    # -------------------------------------------
+
     add: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'add', modelId]
 
@@ -174,8 +179,8 @@ define (require) ->
         # increase the count
         @relationsModelCount += 1
 
-      # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:add", modelId
+        # tell the world
+        @trigger "add", modelId
 
     # -------------------------------------------
 
@@ -188,8 +193,8 @@ define (require) ->
         # reduce the count
         @relationsModelCount -= 1
 
-      # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:remove", modelId
+        # tell the world
+        @trigger "remove", modelId
 
     # -------------------------------------------
 
@@ -201,7 +206,7 @@ define (require) ->
       @_releaseOldModels newModelIdsMany
 
       # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:reset", newModelIdsMany
+      @trigger "reset", newModelIdsMany
 
     # -------------------------------------------
 
@@ -212,4 +217,4 @@ define (require) ->
       @_releaseOldModels([])
 
       # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:empty"
+      @trigger "empty"
