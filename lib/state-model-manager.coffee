@@ -19,6 +19,7 @@ define (require) ->
     collectionInstance: null
     hookAttributeName: null
     relationsModelIds: []
+    relationsModelCount: 0
 
     # -------------------------------------------
 
@@ -75,17 +76,27 @@ define (require) ->
     # -------------------------------------------
 
     _addRelationsModelId: (modelId) ->
+      # do nothing if id is already in relations
+      return false if modelId in @_getRelationsModelIds()
+
       # add modelId
       @relationsModelIds.push modelId
 
       # refresh models
       @_refresh()
 
+      return true
+
     # -------------------------------------------
 
     _removeRelationsModelId: (modelId) ->
+      # do nothing if id is not in relations
+      return false if modelId not in @_getRelationsModelIds()
+
       # renew models without the one we want to remove
       @_releaseOldModels _.without @relationsModelIds, modelId
+
+      return true
 
     # -------------------------------------------
 
@@ -127,13 +138,18 @@ define (require) ->
 
     # -------------------------------------------
 
-    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds) ->
+    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds, relationsModelCount) ->
+      if relationsModelCount is undefined
+        relationsModelCount = 0
+        relationsModelCount = relationsModelIds.length if relationsModelIds?
+
       Imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
 
       # set initials
       @_setCollectionInstanceName collectionInstanceName
       @_setHookAttributeName hookAttributeName
       @_setRelationsModelIds relationsModelIds
+      @relationsModelCount = relationsModelCount
 
       # refresh relation states when collection changed
       @_getCollectionInstance().on 'add', (model) => @_refresh()
@@ -144,11 +160,19 @@ define (require) ->
 
     # -------------------------------------------
 
+    getCount: ->
+      @relationsModelCount
+
+    # -------------------------------------------
+
     add: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'add', modelId]
 
       # add state to model
-      @_addRelationsModelId modelId
+      if @_addRelationsModelId modelId
+
+        # increase the count
+        @relationsModelCount += 1
 
       # tell the world
       Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:add", modelId
@@ -159,7 +183,10 @@ define (require) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'remove', modelId]
 
       # remove state from model
-      @_removeRelationsModelId modelId
+      if @_removeRelationsModelId modelId
+
+        # reduce the count
+        @relationsModelCount -= 1
 
       # tell the world
       Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:remove", modelId
