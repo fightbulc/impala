@@ -9,7 +9,7 @@ define (require) ->
 
   class StateWidget extends Backbone.View
     events:
-      'click .state-off, .state-on': 'handleState'
+      'click': 'handleState'
 
     # -------------------------------------------
 
