@@ -126,7 +126,10 @@ define (require) ->
       @$el.empty()
 
       # sort models if demanded
-      models = @subCollection.sortByKey @_getSortingOptions() if @_getSortingOptions()?
+      if @_getSortingOptions()?
+        models = @subCollection.sortByKey @_getSortingOptions()
+      else
+        models = @subCollection.models
 
       @subviewById = {}
       @subviewReplacementById = {}
