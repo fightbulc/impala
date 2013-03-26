@@ -180,6 +180,22 @@ define (require) ->
 
     # -------------------------------------------
 
+    addMissingIds: (ids) ->
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'addMissingIds', modelId]
+
+      added = []
+
+      for modelId in ids
+        if modelId not in @relationsModelIds
+          @relationsModelIds.push modelId
+          added.push modelId
+
+      @_refresh()
+
+      added
+
+    # -------------------------------------------
+
     remove: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'remove', modelId]
 

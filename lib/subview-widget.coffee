@@ -155,6 +155,18 @@ define (require) ->
 
     # -------------------------------------------
 
+    renderMany: (ids) ->
+      @_getParentCollection().getByIdsMany ids, (models) =>
+
+        # build views
+        for model in models
+          @_renderOne(model).$el.appendTo @$el
+
+        # tell the app when we are done
+        @callback(@$el) if typeof @callback is 'function'
+
+    # -------------------------------------------
+
     remove: (id, replacement) ->
       collection = @_getSubCollection()
       model = collection.get(id)
@@ -193,7 +205,7 @@ define (require) ->
       model = collection.get(id)
 
       # no model no pain
-      return if not model?
+      return false if not model?
 
       if ($replacement = @subviewReplacementById[id])?
         # recreate the view
@@ -204,6 +216,8 @@ define (require) ->
 
         # delete the replacement
         delete @subviewReplacementById[id]
+
+        @callback(@$el) if typeof @callback is 'function'
 
         return view
 
