@@ -8,6 +8,7 @@ define (require) ->
   class SubviewWidget extends AbstractView
     views: []
     viewById: {}
+    replacementById: {}
     length: 0
 
     # -------------------------------------------
@@ -31,7 +32,7 @@ define (require) ->
 
     _createView: (id) ->
       # create the view
-      view = new @options.ViewClass(model: @collection.get(id))
+      view = new @options.subviewClass(model: @collection.get(id))
 
       # apply the view to the hash, still have to put it manually into the array
       @viewById[id] = view
@@ -116,17 +117,48 @@ define (require) ->
 
     # -------------------------------------------
 
-    remove: (id) ->
+    remove: (id, replacement) ->
       index = @indexOf(id)
       view = @get(id)
 
-      # remove all reference to the view
-      view.$el.remove()
-      @views.splice(index, 1)
+      if replacement
+        $replacement = $(replacement)
+
+        # store replacement for further use
+        @replacementById[id] = $replacement
+
+        # remove the view from the DOM and put the replacement in
+        view.$el.replaceWith($replacement)
+
+      else
+        # remove the view from the DOM
+        view.$el.remove()
+
+        # only remove view from the array if no replacement is given
+        @views.splice(index, 1)
+
       delete @viewById[id]
 
       # update length
       @length -= 1
+
+    # -------------------------------------------
+
+    undoRemove: (id) ->
+      return if not @replacementById[id]
+
+      $replacement = @replacementById[id]
+
+      # recreate the view
+      view = @_createView(id)
+
+      # remove the replacement and bring the view back
+      $replacement.replaceWith(view.$el)
+
+      # delete the replacement
+      delete @replacementById[id]
+
+      return view
 
     # -------------------------------------------
 
