@@ -18,7 +18,7 @@ define (require) ->
     subviewClass: null
     subviewClassParameters: {}
     callback: null
-    sortingOptions: {}
+    sortingOptions: null
 
     # -------------------------------------------
 
