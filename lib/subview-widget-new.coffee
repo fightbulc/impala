@@ -16,17 +16,23 @@ define (require) ->
     initialize: ->
       if @options.observe
 
+        # handle adding models
         @collection.on 'add', (model, collection) =>
           id = model.id
           index = collection.indexOf(model)
           @addAt(id, index)
 
+        # handle removing models
         @collection.on 'remove', (model) =>
           id = model.id
           @remove(id)
 
+        # handle collection resets
         @collection.on 'reset', (collection) =>
           @reset(collection.models)
+
+        # trigger initial reset to grab all the stuff from the collection
+        @reset(@collection.models)
 
     # -------------------------------------------
 
