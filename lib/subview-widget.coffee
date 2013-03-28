@@ -66,6 +66,11 @@ define (require) ->
 
     # -------------------------------------------
 
+    getModelAt: (index) ->
+      @_getSubCollection().at(index)
+
+    # -------------------------------------------
+
     setSubviewIds: (ids = []) ->
       @subviewIds = ids
       @
