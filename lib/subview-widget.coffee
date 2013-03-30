@@ -127,7 +127,7 @@ define (require) ->
       parameters = @_getSubviewClassParameters()
 
       # sort models if demanded
-      models = @subCollection.sortBy @_getSortingOptions() if @_getSortingOptions()?
+      models = @subCollection.sortByKey @_getSortingOptions() if @_getSortingOptions()?
 
       # build views
       for model in models

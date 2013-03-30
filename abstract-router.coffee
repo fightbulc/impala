@@ -48,4 +48,11 @@ define (require) ->
 
     getCurrentRoute: ->
       Imp.log [__private.moduleName(), 'getCurrentRoute']
-      Backbone.history.fragment.replace '!/', ''
+      window.location.hash.replace '#!/', ''
+
+    # -------------------------------------------
+
+    reloadPage: ->
+      Imp.log [__private.moduleName(), 'reloadPage']
+      route = @getCurrentRoute()
+      Backbone.history.loadUrl "!/#{route}"
