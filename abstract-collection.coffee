@@ -61,6 +61,18 @@ define (require) ->
 
     # -------------------------------------------
 
+    sortBy: (comparator, collection) ->
+      models = []
+
+      models = _.sortBy collection.models, comparator
+
+      # reverse if enabled
+      models.reverse() if @reverseSorting is true
+
+      models
+
+    # -------------------------------------------
+
     sortByKey: (options = {}) ->
       # set options
       options.key = @sortingKey if not options.key?
