@@ -13,10 +13,12 @@ define (require) ->
     parentCollection: null
     subCollection: null
     subviewIds: []
+    subviewById: {}
+    subviewReplacementById: {}
     subviewClass: null
     subviewClassParameters: {}
     callback: null
-    sortingOptions: {}
+    sortingOptions: null
 
     # -------------------------------------------
 
@@ -61,6 +63,11 @@ define (require) ->
 
     _getSubviewIds: ->
       @subviewIds
+
+    # -------------------------------------------
+
+    getModelAt: (index) ->
+      @_getSubCollection().at(index)
 
     # -------------------------------------------
 
@@ -123,22 +130,101 @@ define (require) ->
       # empty container
       @$el.empty()
 
-      # class parameters
-      parameters = @_getSubviewClassParameters()
-
       # sort models if demanded
-      models = @subCollection.sortByKey @_getSortingOptions() if @_getSortingOptions()?
+      if @_getSortingOptions()?
+        models = @subCollection.sortByKey @_getSortingOptions()
+      else
+        models = @subCollection.models
+
+      @subviewById = {}
+      @subviewReplacementById = {}
 
       # build views
       for model in models
-        # attach model to parameters
-        parameters.model = model
-
-        # create subviewClass instance
-        (new (@_getSubviewClass()) parameters).render().$el.appendTo @$el
+        @_renderOne(model).$el.appendTo @$el
 
         # tell the app when we are done
         (@_getCallback()) @$el if @_getSubCollection().isLast model
+
+    # -------------------------------------------
+
+    _renderOne: (model) ->
+      # class parameters
+      parameters = @_getSubviewClassParameters()
+
+      # attach model to parameters
+      parameters.model = model
+
+      # create subviewClass instance
+      @subviewById[model.id] = (new (@_getSubviewClass()) parameters).render()
+
+    # -------------------------------------------
+
+    renderMany: (ids) ->
+      @_getParentCollection().getByIdsMany ids, (models) =>
+
+        # build views
+        for model in models
+          @_renderOne(model).$el.appendTo @$el
+
+        # tell the app when we are done
+        @callback(@$el) if typeof @callback is 'function'
+
+    # -------------------------------------------
+
+    remove: (id, replacement) ->
+      collection = @_getSubCollection()
+      model = collection.get(id)
+
+      # no model no pain
+      return if not model?
+
+      $replacement = $(replacement)
+
+      # remove the view from DOM and hash
+      if (view = @subviewById[id])?
+        if replacement?
+          # store replacement for further use
+          @subviewReplacementById[id] = $replacement
+
+          # remove the view from the DOM and put the replacement in
+          view.$el.replaceWith($replacement)
+
+          # remove the view from the hash
+          delete @subviewById[id]
+
+        else
+          # remove the view from the DOM
+          view.$el.remove()
+
+          # remove the view from the hash
+          delete @subviewById[id]
+
+          # remove the model from the collection
+          collection.remove(model)
+
+    # -------------------------------------------
+
+    undoRemove: (id) ->
+      collection = @_getSubCollection()
+      model = collection.get(id)
+
+      # no model no pain
+      return false if not model?
+
+      if ($replacement = @subviewReplacementById[id])?
+        # recreate the view
+        view = @_renderOne(model)
+
+        # remove the replacement and bring the view back
+        $replacement.replaceWith(view.$el)
+
+        # delete the replacement
+        delete @subviewReplacementById[id]
+
+        @callback(@$el) if typeof @callback is 'function'
+
+        return view
 
     # -------------------------------------------
 

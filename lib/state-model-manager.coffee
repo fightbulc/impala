@@ -4,7 +4,7 @@ define (require) ->
   Imp = require 'impala'
   Base = require 'base'
   Instance = require 'instance'
-  Pubsub = require 'pubsub'
+  AbstractManager = require 'abstract-manager'
 
   ###############################################
 
@@ -14,11 +14,12 @@ define (require) ->
 
   ###############################################
 
-  class StateModelManager
+  class StateModelManager extends AbstractManager
     collectionInstanceName: null
     collectionInstance: null
     hookAttributeName: null
     relationsModelIds: []
+    relationsModelCount: 0
 
     # -------------------------------------------
 
@@ -75,17 +76,27 @@ define (require) ->
     # -------------------------------------------
 
     _addRelationsModelId: (modelId) ->
+      # do nothing if id is already in relations
+      return false if modelId in @_getRelationsModelIds()
+
       # add modelId
       @relationsModelIds.push modelId
 
       # refresh models
       @_refresh()
 
+      return true
+
     # -------------------------------------------
 
     _removeRelationsModelId: (modelId) ->
+      # do nothing if id is not in relations
+      return false if modelId not in @_getRelationsModelIds()
+
       # renew models without the one we want to remove
       @_releaseOldModels _.without @relationsModelIds, modelId
+
+      return true
 
     # -------------------------------------------
 
@@ -127,13 +138,14 @@ define (require) ->
 
     # -------------------------------------------
 
-    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds) ->
+    constructor: (collectionInstanceName, hookAttributeName, relationsModelIds = [], relationsModelCount = relationsModelIds.length) ->
       Imp.log [__private.moduleName(), '>>>', 'constructor', collectionInstanceName, hookAttributeName, relationsModelIds]
 
       # set initials
       @_setCollectionInstanceName collectionInstanceName
       @_setHookAttributeName hookAttributeName
       @_setRelationsModelIds relationsModelIds
+      @relationsModelCount = relationsModelCount
 
       # refresh relation states when collection changed
       @_getCollectionInstance().on 'add', (model) => @_refresh()
@@ -144,14 +156,43 @@ define (require) ->
 
     # -------------------------------------------
 
+    getCount: ->
+      @relationsModelCount
+
+    # -------------------------------------------
+
+    getIds: ->
+      @relationsModelIds
+
+    # -------------------------------------------
+
     add: (modelId) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'add', modelId]
 
       # add state to model
-      @_addRelationsModelId modelId
+      if @_addRelationsModelId modelId
 
-      # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:add", modelId
+        # increase the count
+        @relationsModelCount += 1
+
+        # tell the world
+        @trigger "add", modelId
+
+    # -------------------------------------------
+
+    addMissingIds: (ids) ->
+      Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'addMissingIds', modelId]
+
+      added = []
+
+      for modelId in ids
+        if modelId not in @relationsModelIds
+          @relationsModelIds.push modelId
+          added.push modelId
+
+      @_refresh()
+
+      added
 
     # -------------------------------------------
 
@@ -159,10 +200,13 @@ define (require) ->
       Imp.log [__private.moduleName(), '>>>', @_getCollectionInstance(), 'remove', modelId]
 
       # remove state from model
-      @_removeRelationsModelId modelId
+      if @_removeRelationsModelId modelId
 
-      # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:remove", modelId
+        # reduce the count
+        @relationsModelCount -= 1
+
+        # tell the world
+        @trigger "remove", modelId
 
     # -------------------------------------------
 
@@ -174,7 +218,7 @@ define (require) ->
       @_releaseOldModels newModelIdsMany
 
       # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:reset", newModelIdsMany
+      @trigger "reset", newModelIdsMany
 
     # -------------------------------------------
 
@@ -185,4 +229,4 @@ define (require) ->
       @_releaseOldModels([])
 
       # tell the world
-      Pubsub.publish "StateModelManager:#{@_getCollectionInstanceName()}:empty"
+      @trigger "empty"

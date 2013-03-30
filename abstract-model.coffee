@@ -7,14 +7,14 @@ define (require) ->
   ###############################################
 
   Backbone.sync = (method, model, options) ->
-    options.error = (response, errorThrown, options) ->
-      Pubsub.publish
-        channel: 'model:error'
-        data: [
-          error: errorThrown
-          response: response
-          options: options
-        ]
+    # options.error = (response, errorThrown, options) ->
+    #   Pubsub.publish
+    #     channel: 'model:error'
+    #     data: [
+    #       error: errorThrown
+    #       response: response
+    #       options: options
+    #     ]
 
     # add model to options
     options.model = model
