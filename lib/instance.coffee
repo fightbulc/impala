@@ -20,6 +20,7 @@ define (require) ->
       views: {}
       managers: {}
       routers: {}
+      cache: {}
 
     # -------------------------------------------
 
@@ -150,6 +151,26 @@ define (require) ->
 
     removeManager: (key) ->
       __private.removeInstance 'managers', key
+
+    # ===========================================
+
+    setCache: (key, instance) ->
+      __private.setInstance 'cache', key, instance
+
+    # -------------------------------------------
+
+    hasCache: (key) ->
+      __private.hasInstance 'cache', key
+
+    # -------------------------------------------
+
+    getCache: (key) ->
+      __private.getInstance 'cache', key
+
+    # -------------------------------------------
+
+    removeCache: (key) ->
+      __private.removeInstance 'cache', key
 
   #################################################
 
