@@ -129,6 +129,10 @@ define (require) ->
             catch error
               response = null
 
+            # call aborted by some developer's code - probably not an error
+            if errorThrown is "abort"
+              return @log ["#{__private.moduleName()}.jsonRequest", "Call aborted by YOU"]
+
             # missing error handler
             if _.isUndefined options.error
               return @logError ["#{__private.moduleName()}.jsonRequest", response, errorThrown, options]
