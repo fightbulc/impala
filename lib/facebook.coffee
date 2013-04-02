@@ -65,7 +65,7 @@ define (require) ->
       # create fb-root container
       $('body').prepend($('<div/>').attr('id', 'fb-root'))
 
-      # load SKD
+      # load SDK
       id = 'facebook-jssdk'
       return false if d.getElementById(id)
       js = d.createElement('script')
@@ -400,14 +400,6 @@ define (require) ->
     getUserDetails: (fbUserId, callback) ->
       FB.api "/#{fbUserId}", callback
 
-    # -------------------------------------------
-
-    parseDOM: ->
-      imp.log [__private.moduleName(), 'parseDOM']
-      if not _.isUndefined window.FB
-        window.FB.XFBML.parse()
-      else
-        setTimeout((=> @parseDOM()), 3000)
 
 
   ###############################################

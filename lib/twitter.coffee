@@ -2,7 +2,7 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   imp = require 'impala'
-  pubsub = require 'pubsub'
+  Pubsub = require 'pubsub'
 
   #################################################
 
@@ -14,40 +14,51 @@ define (require) ->
 
   class twitter
     constructor: ->
+      imp.log [__private.moduleName(), 'constructor']
+
       @loadSdk()
+
+    # -------------------------------------------
+
+    getTwitterConfig: ->
+      imp.log [__private.moduleName(), 'getTwitterConfig']
+
+      Imp.getConfigByKey('twitter')
+
 
     # -------------------------------------------
 
     loadSdk: ->
       imp.log [__private.moduleName(), 'loadSdk']
 
-      script = window.document.createElement('script')
-      script.id = "twitter-wjs"
-      script.src = "#{window.location.protocol}//platform.twitter.com/widgets.js"
-      $('body').append(script)
+      url = "//platform.twitter.com/widgets.js"
+
+      $.getScript url , (data, textStatus, jqxhr) =>
+        imp.log [__private.moduleName(), 'loadSdk',textStatus]
+
+        Pubsub.subscribe 'twitter:loadTwitterButtons', (response) =>
+          @loadTwitterButtons()
 
     # -------------------------------------------
 
     loadTwitterButtons: ->
-      try
-        twttr.widgets.load()
-      catch error
-        @loadSdk()
-        setTimeout((=> @loadTwitterButtons()), 3000)
+      imp.log [__private.moduleName(), 'loadTwitterButtons']
+
+      twttr.widgets.load()
 
     # -------------------------------------------
 
     getTweetButton: (options) ->
 
-      if not _.isUndefined(options.url)
+      if not _.isUndefined(options.href)
         params = []
 
         # set defaults
         options.onComplete ?= (button) -> imp.log [__private.moduleName(), 'getTweetButton:onComplete', button]
 
-        options.url       ?= "http://www.goanteup.com/!#/bet/{{betData.id}}"
+        options.href       ?= "http://www.goanteup.com/!#/bet/{{betData.id}}"
         options.text      ?= "Check this out on beatguide"
-        options.via       ?= "Beatguide"
+        options.via       ?= "Beatguideme"
         options.related   ?= ""               #Related accounts
         options.count     ?= "horizontal"     #Count box position
         options.lang      ?= "en"             #The language for the Tweet Button
@@ -60,7 +71,7 @@ define (require) ->
         # build url with params
         tweetButton = '<a href="https://twitter.com/share"
                       class="twitter-share-button"
-                      data-url="'+options.url+'"
+                      data-url="'+options.href+'"
                       data-text="'+options.text+'"
                       data-via="'+options.via+'"
                       data-related="'+options.related+'"
@@ -74,7 +85,7 @@ define (require) ->
         options.onComplete tweetButton
 
       else
-        imp.logError [__private.moduleName(), 'getTweetButton', 'missing options.URL']
+        imp.logError [__private.moduleName(), 'getTweetButton', 'missing options.href']
 
 
     # -------------------------------------------
