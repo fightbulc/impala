@@ -28,15 +28,20 @@ define (require) ->
       Pubsub.subscribe 'router:redirect', @redirect
 
       #
+      # listen for replace requests
+      #
+      Pubsub.subscribe 'router:replace', (route) => @redirect(route, true)
+
+      #
       # listen for url updates
       #
       Pubsub.subscribe 'router:update', @updateUrl
 
     # -------------------------------------------
 
-    redirect: (route) ->
-      Imp.log [__private.moduleName(), 'redirect', route]
-      Backbone.history.navigate "!/#{route}", trigger: true
+    redirect: (route, replace = false) ->
+      Imp.log [__private.moduleName(), 'redirect', route, replace]
+      Backbone.history.navigate "!/#{route}", trigger: true, replace: replace
 
     # -------------------------------------------
 
