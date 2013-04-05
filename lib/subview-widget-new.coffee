@@ -6,14 +6,15 @@ define (require) ->
   ###############################################
 
   class SubviewWidget extends AbstractView
-    views: []
-    viewById: {}
-    replacementById: {}
     length: 0
 
     # -------------------------------------------
 
     initialize: ->
+      @views = []
+      @viewById = {}
+      @replacementById = {}
+
       if @options.observe
 
         # handle adding models
