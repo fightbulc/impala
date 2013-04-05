@@ -63,11 +63,10 @@ define (require) ->
     # -------------------------------------------
 
     indexOf: (id) ->
-      view = @get(id)
+      for view, index in @views
+        return index if view.model.id is id
 
-      return -1 if view is undefined
-
-      @views.indexOf(view)
+      return -1
 
     # -------------------------------------------
 
@@ -161,6 +160,10 @@ define (require) ->
       # remove the replacement and bring the view back
       $replacement.replaceWith(view.$el)
 
+      # replace old view in the array
+      index = @indexOf(id)
+      @views[index] = view
+
       # delete the replacement
       delete @replacementById[id]
 
@@ -170,7 +173,9 @@ define (require) ->
 
     reset: (items) ->
       # remove all views from the DOM
-      view.$el.remove() for view in @views
+      for view in @views
+        console.log view
+        view.$el.remove()
 
       # reset the widget
       @views = []
