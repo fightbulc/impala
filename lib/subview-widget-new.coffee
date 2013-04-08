@@ -15,6 +15,20 @@ define (require) ->
       @viewById = {}
       @replacementById = {}
 
+      # handle sortBy style of comparator
+      if typeof @options.comparator is 'function'
+        if @options.comparator.length is 1
+          cmpr = @options.comparator
+          @options.comparator = (a, b) ->
+            a = cmpr(a)
+            b = cmpr(b)
+            return -1 if a < b
+            return 1 if a > b
+            return 0
+
+      # nullify if no comparator was given for faster parsing
+      else @options.comparator = null
+
       if @options.observe
 
         # handle adding models
@@ -74,6 +88,9 @@ define (require) ->
     add: (items) ->
       items = [items] if not _.isArray(items)
 
+      cmpr = @options.comparator
+
+      # add items in order as they come
       for item in items
         # can accept models as well as ids, need to handle that!
         if item.id?
@@ -81,6 +98,23 @@ define (require) ->
         else
           id = item
 
+        # use a comparator to put items in order
+        if cmpr?
+          model = @collection.get(id)
+
+          index = 0
+
+          for view, i in @views
+            sort = cmpr(model, view.model)
+            index = i if sort < 0 and i < index
+            index = i+1 if sort >= 0 and i+1 > index
+
+          @addAt(id, index)
+
+          # skip to next iteration
+          continue
+
+        # add the view to the end of the list
         view = @_createView(id)
 
         # put the view in order into the array
@@ -151,7 +185,7 @@ define (require) ->
     # -------------------------------------------
 
     undoRemove: (id) ->
-      return if not @replacementById[id]
+      return null if not @replacementById[id]
 
       $replacement = @replacementById[id]
 
@@ -175,12 +209,16 @@ define (require) ->
     reset: (items) ->
       # remove all views from the DOM
       for view in @views
-        console.log view
         view.$el.remove()
+
+      # remove all replacement elements
+      for id, $replacement of @replacementById
+        $replacement.remove()
 
       # reset the widget
       @views = []
       @viewById = {}
+      @replacementById = {}
       @length = 0
 
       # add new items if provided
