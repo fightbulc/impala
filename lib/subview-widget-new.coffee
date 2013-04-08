@@ -102,12 +102,12 @@ define (require) ->
         if cmpr?
           model = @collection.get(id)
 
-          index = 0
+          index = @views.length
 
           for view, i in @views
-            sort = cmpr(model, view.model)
-            index = i if sort < 0 and i < index
-            index = i+1 if sort >= 0 and i+1 > index
+            if cmpr(model, view.model) <= 0
+              index = i
+              break
 
           @addAt(id, index)
 
