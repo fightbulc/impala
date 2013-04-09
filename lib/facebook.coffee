@@ -39,8 +39,8 @@ define (require) ->
         # init
         FB.init
           appId: __private.getFacebookConfig()['appId']
-          status: true
-          cookie: true
+          status: false
+          cookie: false
           oauth: true
           xfbml: true
           frictionlessRequests: true
@@ -83,88 +83,87 @@ define (require) ->
     initEventListeners: ->
       Imp.log [__private.moduleName(), 'initEventListeners']
 
+      #
+      # Set connection state
+      #
+      Pubsub.subscribe 'facebook:authHasSession', @setConnectionState
+      Pubsub.subscribe 'facebook:authNoSession', @setConnectionState
+
+      #
+      # Auth
+      #
+
+      # # user gets auth prompt
+      # FB.Event.subscribe 'auth.prompt', (response) ->
+      #   Imp.log [__private.moduleName(), 'event:auth.prompt']
+      #   Pubsub.publish 'facebook:authPrompt', response
+
+      # # user session state changes
+      # FB.Event.subscribe 'auth.sessionChange', (response) =>
+      #   Imp.log [__private.moduleName(), 'event:auth.sessionChange']
+      #   @handleSessionRequestResponse(response)
+
+      # # user session state changes
+      # FB.Event.subscribe 'auth.statusChange', (response) =>
+      #   Imp.log [__private.moduleName(), 'event:auth.statusChange']
+      #   @handleSessionRequestResponse(response)
+
+      #
+      # Like
+      #
+
+      # user liked
+      FB.Event.subscribe 'edge.create', (response) ->
+        Pubsub.publish 'facebook:createdLike', response
+
+      # user unliked
+      FB.Event.subscribe 'edge.remove', (response) ->
+        Pubsub.publish 'facebook:removedLike', response
+
+      #
+      # Comment
+      #
+
+      # user commented
+      FB.Event.subscribe 'comment.create', (response) ->
+        Pubsub.publish 'facebook:createdComment', response
+
+      # user removed comment
+      FB.Event.subscribe 'comment.remove', (response) ->
+        Pubsub.publish 'facebook:removedComment', response
+
+      #
+      # Message
+      #
+
+      # message send
+      FB.Event.subscribe 'message.send', (response) ->
+        Pubsub.publish 'facebook:sentMessage', response
+
+      #
+      # App requests
+      #
+
+      # # listen for login via redirect
+      # Pubsub.subscribe 'facebook:loginViaRedirect', @loginViaRedirect
+
+      # # listen for login via popup
+      # Pubsub.subscribe 'facebook:loginViaPopup', @loginViaPopup
+
+      # # listen for logout
+      # Pubsub.subscribe 'facebook:logout', @logout
+
+      # At that point facebook is loaded
+      Pubsub.publish 'facebook:ready', true
+
+    # -------------------------------------------
+
+    getLoginStatus: ->
       initCallback = (response) =>
         Imp.log [__private.moduleName(), 'event:getLoginStatus', response]
-
-        #
-        # Set connection state
-        #
-        Pubsub.subscribe 'facebook:authHasSession', @setConnectionState
-        Pubsub.subscribe 'facebook:authNoSession', @setConnectionState
-
-        #
-        # Auth
-        #
-
-        # user gets auth prompt
-        FB.Event.subscribe 'auth.prompt', (response) ->
-          Imp.log [__private.moduleName(), 'event:auth.prompt']
-          Pubsub.publish 'facebook:authPrompt', response
-
-        # user session state changes
-        FB.Event.subscribe 'auth.sessionChange', (response) =>
-          Imp.log [__private.moduleName(), 'event:auth.sessionChange']
-          @handleSessionRequestResponse(response)
-
-        # user session state changes
-        FB.Event.subscribe 'auth.statusChange', (response) =>
-          Imp.log [__private.moduleName(), 'event:auth.statusChange']
-          @handleSessionRequestResponse(response)
-
-        #
-        # Like
-        #
-
-        # user liked
-        FB.Event.subscribe 'edge.create', (response) ->
-          Pubsub.publish 'facebook:createdLike', response
-
-        # user unliked
-        FB.Event.subscribe 'edge.remove', (response) ->
-          Pubsub.publish 'facebook:removedLike', response
-
-        #
-        # Comment
-        #
-
-        # user commented
-        FB.Event.subscribe 'comment.create', (response) ->
-          Pubsub.publish 'facebook:createdComment', response
-
-        # user removed comment
-        FB.Event.subscribe 'comment.remove', (response) ->
-          Pubsub.publish 'facebook:removedComment', response
-
-        #
-        # Message
-        #
-
-        # message send
-        FB.Event.subscribe 'message.send', (response) ->
-          Pubsub.publish 'facebook:sentMessage', response
-
-        #
-        # App requests
-        #
-
-        # listen for login via redirect
-        Pubsub.subscribe 'facebook:loginViaRedirect', @loginViaRedirect
-
-        # listen for login via popup
-        Pubsub.subscribe 'facebook:loginViaPopup', @loginViaPopup
-
-        # listen for logout
-        Pubsub.subscribe 'facebook:logout', @logout
-
-        # At that point facebook loaded & requested the
-        # current session. Lets role!
-
-        Pubsub.publish 'facebook:ready', true
-
         #
         # handle passed response
         #
-
         @handleSessionRequestResponse(response)
 
       #
@@ -249,13 +248,15 @@ define (require) ->
       #
       # cancel handling
       #
-      cancelHandle = (response) ->
-        Imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
+      handle = (response) =>
+        @handleSessionRequestResponse(response) if response?
+        callback() if typeof callback is 'function'
+        #Imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
 
       #
       # authenticate via popup
       #
-      FB.login cancelHandle, scope: __private.getFacebookConfig()['permissions'].join(',')
+      FB.login handle, scope: __private.getFacebookConfig()['permissions'].join(',')
 
     # -------------------------------------------
 
