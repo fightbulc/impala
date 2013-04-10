@@ -107,8 +107,10 @@ define (require) ->
 
           # on success
           success: (data, status) =>
-            if _.isUndefined data.result or _.isUndefined options.success
-              return options.error data, 'Request failed', options
+            if data.result is undefined or typeof options.success isnt 'function'
+              error = null
+              error = data.error if data.error?
+              return options.error error, 'Request failed', options
 
             # prepage args for success call
             args = [ data.result, status ]
