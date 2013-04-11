@@ -130,6 +130,14 @@ define (require) ->
     # -------------------------------------------
 
     #
+    # Test if email is valid
+    #
+    isValidEmail: (email) ->
+      new RegExp("^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$", "i").test(email)
+
+    # -------------------------------------------
+
+    #
     # The regular expression
     #
     getUrlRexExp: ->
