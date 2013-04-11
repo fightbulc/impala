@@ -274,6 +274,11 @@ define (require) ->
     # -------------------------------------------
 
     requestPermissions: (permissions, callback) ->
+      # make permissions optional
+      if typeof permissions is 'function' and callback is undefined
+        callback = permissions
+        permissions = __private.getFacebookConfig().permissions
+
       Imp.log [__private.moduleName(), 'requestPermissions', permissions]
       FB.login callback, scope: permissions.join ','
 
