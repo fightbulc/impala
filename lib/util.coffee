@@ -137,6 +137,12 @@ define (require) ->
 
     # -------------------------------------------
 
+    trim: (str) ->
+      return '' if typeof str isnt 'string'
+      str.replace(/(^\s+|\s+$)/gmi, '')
+
+    # -------------------------------------------
+
     #
     # The regular expression
     #
