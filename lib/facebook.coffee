@@ -242,16 +242,25 @@ define (require) ->
 
     # -------------------------------------------
 
-    loginViaPopup: (callback) ->
+    loginViaPopup: (silent, callback) ->
       Imp.log [__private.moduleName(), 'loginViaPopup']
 
-      #
-      # cancel handling
-      #
-      handle = (response) =>
-        @handleSessionRequestResponse(response) if response?
-        callback() if typeof callback is 'function'
-        #Imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
+      # make silent optional
+      if typeof silent is 'function' and callback is undefined
+        callback = silent
+        silent = false
+
+      if silent is false
+        handle = (response) =>
+          @handleSessionRequestResponse(response) if response?
+          callback() if typeof callback is 'function'
+          #Imp.log [__private.moduleName(), 'login has been canceled'] if response.authResponse is null
+      else
+        handle = (response) =>
+          if response.status is 'connected'
+            callback(response.authResponse.accessToken)
+          else
+            callback(null)
 
       #
       # authenticate via popup
