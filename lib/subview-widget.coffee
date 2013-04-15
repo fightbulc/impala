@@ -144,7 +144,7 @@ define (require) ->
         @_renderOne(model).$el.appendTo @$el
 
         # tell the app when we are done
-        (@_getCallback()) @$el if @_getSubCollection().isLast model
+        @callback(@$el) if @_getSubCollection().isLast(model) and typeof @callback is 'function'
 
     # -------------------------------------------
 
