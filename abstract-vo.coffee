@@ -4,6 +4,12 @@ define (require) ->
 
     # -------------------------------------------
 
+    constructor: (data) ->
+      @setData(data) if typeof data is 'object' and data isnt null
+      @initalize() if typeof @initalize is 'function'
+
+    # -------------------------------------------
+
     setData: (data) ->
       @data = data
       @
