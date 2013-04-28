@@ -23,7 +23,7 @@ define (require) ->
       conf.forceRoundtrip = false if _.isUndefined(conf.forceRoundtrip)
 
       # facebook redirect login url
-      conf.redirectAuthUrl = 'https://www.facebook.com/dialog/oauth?client_id={{appId}}&scope={{scope}}&redirect_uri={{callbackUrl}}&response_type=token' if _.isUndefined(conf.redirectAuthUrl)
+      conf.redirectAuthUrl = '//www.facebook.com/dialog/oauth?client_id={{appId}}&scope={{scope}}&redirect_uri={{callbackUrl}}&response_type=token' if _.isUndefined(conf.redirectAuthUrl)
 
       # login callback url
       conf.callbackUrl = '/auth/facebook/' if _.isUndefined(conf.callbackUrl)
@@ -401,7 +401,7 @@ define (require) ->
       #
       # Set url by fbUserId and size
       #
-      url = 'http://graph.facebook.com/' + fbUserId + '/picture?type=' + size
+      url = '//graph.facebook.com/' + fbUserId + '/picture?type=' + size
 
       #
       # In case we want SSL
@@ -417,8 +417,6 @@ define (require) ->
 
     getUserDetails: (fbUserId, callback) ->
       FB.api "/#{fbUserId}", callback
-
-
 
   ###############################################
 
