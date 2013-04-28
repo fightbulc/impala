@@ -23,7 +23,7 @@ define (require) ->
     loadSDK: ->
       imp.log [__private.moduleName(), 'loadSDK']
 
-      require ['async!http://maps.google.com/maps/api/js?sensor=false'], =>
+      require ['async!https://maps-api-ssl.google.com/maps/api/js?sensor=false'], =>
         pubsub.publish 'googleMaps:ready'
 
     addMapToCanvas: (ele) ->

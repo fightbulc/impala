@@ -36,6 +36,9 @@ define (require) ->
     init: ->
       # init when sdk was loaded
       window.fbAsyncInit = =>
+
+        FB._https = true
+
         # init
         FB.init
           appId: __private.getFacebookConfig()['appId']
