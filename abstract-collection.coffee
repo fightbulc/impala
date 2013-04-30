@@ -91,9 +91,7 @@ define (require) ->
         #
         # oldschool for everything else
         #
-        return -1 if a < b
-        return 1 if b > a
-        return 0
+        return a - b
 
       # reverse if enabled
       models.reverse() if options.reverse isnt false
