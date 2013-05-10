@@ -34,7 +34,7 @@ define (require) ->
         passThrough = href.indexOf('/downloads/') >= 0
 
         # Allow shift+click for new tabs, etc.
-        if not passThrough not e.altKey and not e.ctrlKey and not e.metaKey and not e.shiftKey
+        if not passThrough and not e.altKey and not e.ctrlKey and not e.metaKey and not e.shiftKey
           e.preventDefault()
 
           # Remove leading slashes and hash bangs (backward compatablility)
