@@ -31,10 +31,10 @@ define (require) ->
         href = $(e.currentTarget).attr('href')
 
         # chain 'or's for other black list routes
-        # passThrough = href.indexOf('sign_out') >= 0
+        passThrough = href.indexOf('/downloads/') >= 0
 
         # Allow shift+click for new tabs, etc.
-        if not e.altKey and not e.ctrlKey and not e.metaKey and not e.shiftKey
+        if not passThrough and not e.altKey and not e.ctrlKey and not e.metaKey and not e.shiftKey
           e.preventDefault()
 
           # Remove leading slashes and hash bangs (backward compatablility)
