@@ -31,6 +31,32 @@ define (require) ->
 
     # -------------------------------------------
 
+    warn: (args) ->
+      if console? and @getConfigByKey('logging') is true
+        try
+          args.unshift("#{@_getTimeString()}")
+
+        catch e
+          console.error args
+
+        # shake what Mama gave 'ya
+        console.warn args
+
+    # -------------------------------------------
+
+    debug: (args) ->
+      if console? and @getConfigByKey('logging') is true
+        try
+          args.unshift("#{@_getTimeString()}")
+
+        catch e
+          console.error args
+
+        # shake what Mama gave 'ya
+        console.debug args
+
+    # -------------------------------------------
+
     logError: (args) ->
       if console? and @getConfigByKey('logging') is true
         console.error args
