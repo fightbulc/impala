@@ -60,6 +60,11 @@ define (require) ->
       #
       Pubsub.subscribe 'router:update', @updateUrl
 
+      #
+      # listen for url updates
+      #
+      Pubsub.subscribe 'router:reload', @reloadPage
+
     # -------------------------------------------
 
     redirect: (route, replace = false) ->
