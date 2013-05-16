@@ -2,7 +2,6 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   Imp = require 'impala'
-  Pubsub = require 'pubsub'
   AbstractManger = require 'abstract-manager'
 
   #################################################
@@ -58,8 +57,13 @@ define (require) ->
       #
       # parse XFBML
       #
-      Pubsub.subscribe 'facebook:ready', ->
-        Pubsub.subscribe 'facebook:parsexfbml', ($data = @) -> FB.XFBML.parse $data[0]
+      @on 'ready', =>
+        @on 'parsexfbml', ($data = @) -> FB.XFBML.parse $data[0]
+
+    # -------------------------------------------
+
+    parsexfbml: ($data) ->
+      @trigger('parsexfbml', $data)
 
     # -------------------------------------------
 
@@ -80,7 +84,6 @@ define (require) ->
 
       # handle load error
       s.onerror = (data) =>
-        Pubsub.publish 'facebook:sdkLoadFail', data
         @trigger('sdkLoadFail', data)
 
     # -------------------------------------------
@@ -91,27 +94,8 @@ define (require) ->
       #
       # Set connection state
       #
-      Pubsub.subscribe 'facebook:authHasSession', @setConnectionState
-      Pubsub.subscribe 'facebook:authNoSession', @setConnectionState
-
-      #
-      # Auth
-      #
-
-      # # user gets auth prompt
-      # FB.Event.subscribe 'auth.prompt', (response) ->
-      #   Imp.log [__private.moduleName(), 'event:auth.prompt']
-      #   Pubsub.publish 'facebook:authPrompt', response
-
-      # # user session state changes
-      # FB.Event.subscribe 'auth.sessionChange', (response) =>
-      #   Imp.log [__private.moduleName(), 'event:auth.sessionChange']
-      #   @handleSessionRequestResponse(response)
-
-      # # user session state changes
-      # FB.Event.subscribe 'auth.statusChange', (response) =>
-      #   Imp.log [__private.moduleName(), 'event:auth.statusChange']
-      #   @handleSessionRequestResponse(response)
+      @on('authHasSession', @setConnectionState)
+      @on('authNoSession', @setConnectionState)
 
       #
       # Like
@@ -119,12 +103,10 @@ define (require) ->
 
       # user liked
       FB.Event.subscribe 'edge.create', (response) =>
-        Pubsub.publish 'facebook:createdLike', response
         @trigger('createdLike', response)
 
       # user unliked
       FB.Event.subscribe 'edge.remove', (response) =>
-        Pubsub.publish 'facebook:removedLike', response
         @trigger('removedLike', response)
 
       #
@@ -133,12 +115,10 @@ define (require) ->
 
       # user commented
       FB.Event.subscribe 'comment.create', (response) =>
-        Pubsub.publish 'facebook:createdComment', response
         @trigger('createdComment', response)
 
       # user removed comment
       FB.Event.subscribe 'comment.remove', (response) =>
-        Pubsub.publish 'facebook:removedComment', response
         @trigger('removedComment', response)
 
       #
@@ -147,24 +127,9 @@ define (require) ->
 
       # message send
       FB.Event.subscribe 'message.send', (response) =>
-        Pubsub.publish 'facebook:sentMessage', response
         @trigger('sentMessage', response)
 
-      #
-      # App requests
-      #
-
-      # # listen for login via redirect
-      # Pubsub.subscribe 'facebook:loginViaRedirect', @loginViaRedirect
-
-      # # listen for login via popup
-      # Pubsub.subscribe 'facebook:loginViaPopup', @loginViaPopup
-
-      # # listen for logout
-      # Pubsub.subscribe 'facebook:logout', @logout
-
       # At that point facebook is loaded
-      Pubsub.publish 'facebook:ready', true
       @trigger('ready', true)
 
     # -------------------------------------------
@@ -196,7 +161,6 @@ define (require) ->
           # we got a session and our
           # app is authorized
           #
-          Pubsub.publish 'facebook:authHasSession', response
           @trigger('authHasSession', response)
 
         when 'not_authorized'
@@ -206,8 +170,6 @@ define (require) ->
           # we got a facebook session but our
           # app is not authorized
           #
-          Pubsub.publish 'facebook:authNoSession', response
-          Pubsub.publish 'facebook:authNotAuthorized', response
           @trigger('authNoSession', response)
           @trigger('authNotAuthorized', response)
 
@@ -217,13 +179,11 @@ define (require) ->
           #
           # report that we dont have a session
           #
-          Pubsub.publish 'facebook:authNoSession', response
           @trigger('authNoSession', response)
 
       #
       # report that we got connection state
       #
-      Pubsub.publish 'facebook:hasConnectionState', response
       @trigger('hasConnectionState', response)
 
     # -------------------------------------------
