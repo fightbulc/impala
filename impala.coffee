@@ -1,7 +1,6 @@
 define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
-  Pubsub = require 'pubsub'
 
   ###############################################
 
@@ -146,9 +145,6 @@ define (require) ->
 
             # call success handler
             options.success.apply @, args
-
-            # publish results
-            Pubsub.publish 'jsonRequest:success', data.result
 
           # on fail
           error: (jqXHR, response, errorThrown) =>

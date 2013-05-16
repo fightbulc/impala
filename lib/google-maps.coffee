@@ -2,7 +2,6 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   imp = require 'impala'
-  pubsub = require 'pubsub'
   template = require 'template'
   template.addTemplate 'InfoWindow', require 'text!app/tmpl/map/info-window.mustache'
 
@@ -24,7 +23,7 @@ define (require) ->
       imp.log [__private.moduleName(), 'loadSDK']
 
       require ['async!https://maps-api-ssl.google.com/maps/api/js?sensor=false'], =>
-        pubsub.publish 'googleMaps:ready'
+        # pubsub.publish 'googleMaps:ready'
 
     addMapToCanvas: (ele) ->
       imp.log [__private.moduleName(), 'addMapToCanvas', ele]

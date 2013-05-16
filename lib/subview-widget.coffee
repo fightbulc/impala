@@ -3,7 +3,6 @@ define (require) ->
   Imp = require 'impala'
   AbstractView = require 'abstract-view'
   AbstractCollection = require 'abstract-collection'
-  Pubsub = require 'pubsub'
 
   ###############################################
 

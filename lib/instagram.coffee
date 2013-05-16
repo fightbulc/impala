@@ -1,6 +1,5 @@
 define (require) ->
   imp = require 'impala'
-  pubsub = require 'pubsub'
 
   ###############################################
 
@@ -115,4 +114,4 @@ define (require) ->
         @count++
 
       else
-        pubsub.publish 'instagram:gotPics', @picArray
+        # pubsub.publish 'instagram:gotPics', @picArray

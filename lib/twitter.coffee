@@ -2,7 +2,7 @@ define (require) ->
   $ = require 'jquery'
   _ = require 'underscore'
   imp = require 'impala'
-  Pubsub = require 'pubsub'
+  AbstractManger = require 'abstract-manager'
 
   #################################################
 
@@ -12,7 +12,7 @@ define (require) ->
 
   #################################################
 
-  class twitter
+  class TwitterManager extends AbstractManger
     constructor: ->
       imp.log [__private.moduleName(), 'constructor']
 
@@ -36,14 +36,18 @@ define (require) ->
       $.getScript url , (data, textStatus, jqxhr) =>
         imp.log [__private.moduleName(), 'loadSdk',textStatus]
 
-        Pubsub.subscribe 'twitter:loadTwitterButtons', (response) =>
-          @loadTwitterButtons()
+        @on 'loadTwitterButtons', => @_loadTwitterButtons()
 
     # -------------------------------------------
 
     loadTwitterButtons: ->
       imp.log [__private.moduleName(), 'loadTwitterButtons']
 
+      @trigger('loadTwitterButtons')
+
+    # -------------------------------------------
+
+    _loadTwitterButtons: ->
       twttr.widgets.load()
 
     # -------------------------------------------
@@ -86,9 +90,3 @@ define (require) ->
 
       else
         imp.logError [__private.moduleName(), 'getTweetButton', 'missing options.href']
-
-
-    # -------------------------------------------
-
-
-  new twitter
