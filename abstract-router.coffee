@@ -2,7 +2,6 @@ define (require) ->
   _ = require 'underscore'
   Backbone = require 'backbone'
   Imp = require 'impala'
-  Pubsub = require 'pubsub'
 
   ###############################################
 
@@ -44,26 +43,6 @@ define (require) ->
           Backbone.history.navigate url, { trigger: true }
 
           return false
-
-      #
-      # listen for redirect requests
-      #
-      Pubsub.subscribe 'router:redirect', @redirect
-
-      #
-      # listen for replace requests
-      #
-      Pubsub.subscribe 'router:replace', (route) => @redirect(route, true)
-
-      #
-      # listen for url updates
-      #
-      Pubsub.subscribe 'router:update', @updateUrl
-
-      #
-      # listen for url updates
-      #
-      Pubsub.subscribe 'router:reload', @reloadPage
 
     # -------------------------------------------
 
