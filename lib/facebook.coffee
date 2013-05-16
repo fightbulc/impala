@@ -3,6 +3,7 @@ define (require) ->
   _ = require 'underscore'
   Imp = require 'impala'
   Pubsub = require 'pubsub'
+  AbstractManger = require 'abstract-manager'
 
   #################################################
 
@@ -32,7 +33,7 @@ define (require) ->
 
   #################################################
 
-  __public =
+  class FacebookManager extends AbstractManger
     init: ->
       # init when sdk was loaded
       window.fbAsyncInit = =>
@@ -78,8 +79,9 @@ define (require) ->
       s = d.getElementsByTagName('head')[0].appendChild(js)
 
       # handle load error
-      s.onerror = (data) ->
+      s.onerror = (data) =>
         Pubsub.publish 'facebook:sdkLoadFail', data
+        @trigger('sdkLoadFail', data)
 
     # -------------------------------------------
 
@@ -116,32 +118,37 @@ define (require) ->
       #
 
       # user liked
-      FB.Event.subscribe 'edge.create', (response) ->
+      FB.Event.subscribe 'edge.create', (response) =>
         Pubsub.publish 'facebook:createdLike', response
+        @trigger('createdLike', response)
 
       # user unliked
-      FB.Event.subscribe 'edge.remove', (response) ->
+      FB.Event.subscribe 'edge.remove', (response) =>
         Pubsub.publish 'facebook:removedLike', response
+        @trigger('removedLike', response)
 
       #
       # Comment
       #
 
       # user commented
-      FB.Event.subscribe 'comment.create', (response) ->
+      FB.Event.subscribe 'comment.create', (response) =>
         Pubsub.publish 'facebook:createdComment', response
+        @trigger('createdComment', response)
 
       # user removed comment
-      FB.Event.subscribe 'comment.remove', (response) ->
+      FB.Event.subscribe 'comment.remove', (response) =>
         Pubsub.publish 'facebook:removedComment', response
+        @trigger('removedComment', response)
 
       #
       # Message
       #
 
       # message send
-      FB.Event.subscribe 'message.send', (response) ->
+      FB.Event.subscribe 'message.send', (response) =>
         Pubsub.publish 'facebook:sentMessage', response
+        @trigger('sentMessage', response)
 
       #
       # App requests
@@ -158,6 +165,7 @@ define (require) ->
 
       # At that point facebook is loaded
       Pubsub.publish 'facebook:ready', true
+      @trigger('ready', true)
 
     # -------------------------------------------
 
@@ -189,6 +197,7 @@ define (require) ->
           # app is authorized
           #
           Pubsub.publish 'facebook:authHasSession', response
+          @trigger('authHasSession', response)
 
         when 'not_authorized'
           Imp.log [__private.moduleName(), 'authNotAuthorized / authNoSession']
@@ -199,6 +208,8 @@ define (require) ->
           #
           Pubsub.publish 'facebook:authNoSession', response
           Pubsub.publish 'facebook:authNotAuthorized', response
+          @trigger('authNoSession', response)
+          @trigger('authNotAuthorized', response)
 
         else
           Imp.log [__private.moduleName(), 'authNoSession']
@@ -207,11 +218,13 @@ define (require) ->
           # report that we dont have a session
           #
           Pubsub.publish 'facebook:authNoSession', response
+          @trigger('authNoSession', response)
 
       #
       # report that we got connection state
       #
       Pubsub.publish 'facebook:hasConnectionState', response
+      @trigger('hasConnectionState', response)
 
     # -------------------------------------------
 
@@ -417,7 +430,3 @@ define (require) ->
 
     getUserDetails: (fbUserId, callback) ->
       FB.api "/#{fbUserId}", callback
-
-  ###############################################
-
-  __public
