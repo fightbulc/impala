@@ -154,6 +154,26 @@ define (require) ->
 
     # ===========================================
 
+    setRouter: (key, instance) ->
+      __private.setInstance 'routers', key, instance
+
+    # -------------------------------------------
+
+    getRouter: (key) ->
+      __private.getInstance 'routers', key
+
+    # -------------------------------------------
+
+    hasRouter: (key) ->
+      __private.hasInstance 'routers', key
+
+    # -------------------------------------------
+
+    removeRouter: (key) ->
+      __private.removeInstance 'routers', key
+
+    # ===========================================
+
     setCache: (key, instance) ->
       __private.setInstance 'cache', key, instance
 
