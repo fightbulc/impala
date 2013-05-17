@@ -11,9 +11,9 @@ define (require) ->
 
   ###############################################
 
-  Backbone.Router.extend
+  class AbstractRouter extends Backbone.Router
     initialize: ->
-      Imp.log [__private.moduleName(), 'init', Imp.getConfig()]
+      Imp.log [__private.moduleName(), 'initialize', Imp.getConfig()]
 
       #
       # Hashbang compatibility
