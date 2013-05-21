@@ -14,18 +14,14 @@ define (require) ->
 
     # -------------------------------------------
 
-    _instances:
-      collections: {}
-      models: {}
-      views: {}
-      managers: {}
-      routers: {}
-      cache: {}
-
-    # -------------------------------------------
-
     init: ->
-      @instances = @_instances
+      @instances =
+        collections: {}
+        models: {}
+        views: {}
+        managers: {}
+        routers: {}
+        cache: {}
 
     # -------------------------------------------
 
