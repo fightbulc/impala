@@ -45,13 +45,16 @@ define (require) ->
 
     # -------------------------------------------
 
+    appendTo: ($el) ->
+      @$el.appendTo($el)
+
+      @
+
+    # -------------------------------------------
+
     _removeSubViews: ->
       subViews = @_getSubViews()
 
       # remove existing subViews
       if not _.isEmpty subViews
         @_removeSubView name for name, instance of subViews
-
-  ###############################################
-
-  AbstractView
