@@ -139,7 +139,7 @@ define (require) ->
 
     trim: (str) ->
       return '' if typeof str isnt 'string'
-      str.replace(/(^\s+|\s+$)/gmi, '')
+      str.replace(/(^\s+|\s+$)/gi, '')
 
     # -------------------------------------------
 
