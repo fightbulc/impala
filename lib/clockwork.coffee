@@ -40,8 +40,8 @@ define (require) ->
       'DD': -> @_makeTwoDigits(@date())
       'M': -> @month()
       'MM': -> @_makeTwoDigits(@month())
-      'MMM': -> @_MMM(@month()-1)
-      'MMMM': -> @_MMMM(@month()-1)
+      'MMM': -> @_MMM[@month()-1]
+      'MMMM': -> @_MMMM[@month()-1]
       'YY': -> @year() % 100
       'YYYY': -> @year()
       'a': -> if @hours() > 12 then 'pm' else 'am'
