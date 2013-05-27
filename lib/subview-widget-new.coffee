@@ -139,7 +139,10 @@ define (require) ->
 
       # otherwise find previous child and insert the view into DOM after it
       previous = @views[index-1]
-      previous.$el.after(view.$el)
+      if previous?
+        previous.$el.after(view.$el)
+      else
+        @$el.append(view.$el)
 
     # -------------------------------------------
 

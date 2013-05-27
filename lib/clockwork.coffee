@@ -76,23 +76,25 @@ define (require) ->
     # -------------------------------------------
 
     constructor: (timeString) ->
+      parsed = false
+
       timeString.replace(
         /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})([\+\-]{1})([0-9]{2}):?([0-9]{2})$/
         (match, year, month, date, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes) =>
-
-          @_year = Number(year)
-          @_month = Number(month)
-          @_date = Number(date)
-          @_hours = Number(hours)
-          @_minutes = Number(minutes)
-          @_seconds = Number(seconds)
 
           @_timezone = Number(timezoneMinutes) + 60 * Number(timezoneHours)
           @_timezone *= -1 if timezoneSign is '-'
 
           @_utcTime = new Date(timeString)
           @_localTime = new Date(@_utcTime.getTime() + @_timezone * 60000)
+
+          parsed = true
       )
+
+      if not parsed
+        # string failed to parse? Assume local time is UTC
+        @_utcTime = new Date(timeString)
+        @_localTime = @_utcTime if not @_localTime?
 
     # -------------------------------------------
 
@@ -177,6 +179,12 @@ define (require) ->
 
     # -------------------------------------------
 
+    _getTimeObj: ->
+      return @_utcTime if @_useUTC
+      return @_localTime
+
+    # -------------------------------------------
+
     utc: ->
       @_useUTC = true
       @
@@ -190,41 +198,34 @@ define (require) ->
     # -------------------------------------------
 
     date: ->
-      return @_utcTime.getUTCDate() if @_useUTC
-      return @_date
+      @_getTimeObj().getUTCDate()
 
     # -------------------------------------------
 
     month: ->
-      return @_utcTime.getUTCMonth()+1 if @_useUTC
-      return @_month
+      @_getTimeObj().getUTCMonth()+1
 
     # -------------------------------------------
 
     year: ->
-      return @_utcTime.getUTCFullYear() if @_useUTC
-      return @_year
+      @_getTimeObj().getUTCFullYear()
 
     # -------------------------------------------
 
     hours: ->
-      return @_utcTime.getUTCHours() if @_useUTC
-      return @_hours
+      @_getTimeObj().getUTCHours()
 
     # -------------------------------------------
 
     minutes: ->
-      return @_utcTime.getUTCMinutes() if @_useUTC
-      return @_minutes
+      @_getTimeObj().getUTCMinutes()
 
     # -------------------------------------------
 
     seconds: ->
-      return @_utcTime.getUTCSeconds() if @_useUTC
-      return @_seconds
+      @_getTimeObj().getUTCSeconds()
 
     # -------------------------------------------
 
     day: ->
-      return @_utcTime.getUTCDay() if @_useUTC
-      return @_localTime.getUTCDay()
+      @_getTimeObj().getUTCDay()
