@@ -12,6 +12,7 @@ define (require) ->
 
   class Clockwork extends AbstractManager
     _useUTC: false
+    _timezone: 0
 
     # -------------------------------------------
 
@@ -38,6 +39,8 @@ define (require) ->
       'D': -> @date()
       'Do': -> @_numerate[@date()]
       'DD': -> @_makeTwoDigits(@date())
+      'DDD': -> @dayOfYear()
+      'DDDD': -> @_makeThreeDigits(@dayOfYear())
       'M': -> @month()
       'MM': -> @_makeTwoDigits(@month())
       'MMM': -> @_MMM[@month()-1]
@@ -78,28 +81,42 @@ define (require) ->
     constructor: (timeString) ->
       parsed = false
 
-      timeString.replace(
-        /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})([\+\-]{1})([0-9]{2}):?([0-9]{2})$/
-        (match, year, month, date, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes) =>
+      if typeof timeString is 'string'
+        timeString.replace(
+          /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})([\+\-]{1})([0-9]{2}):?([0-9]{2})$/
+          (match, year, month, date, hours, minutes, seconds, timezoneSign, timezoneHours, timezoneMinutes) =>
 
-          @_timezone = Number(timezoneMinutes) + 60 * Number(timezoneHours)
-          @_timezone *= -1 if timezoneSign is '-'
+            timezone = Number(timezoneMinutes) + 60 * Number(timezoneHours)
+            timezone *= -1 if timezoneSign is '-'
 
-          @_utcTime = new Date(timeString)
-          @_localTime = new Date(@_utcTime.getTime() + @_timezone * 60000)
+            @_utcTime = new Date(timeString)
 
-          parsed = true
-      )
+            @timezone(timezone)
+
+            parsed = true
+        )
 
       if not parsed
         # string failed to parse? Assume local time is UTC
-        @_utcTime = new Date(timeString)
+        if timeString is undefined
+          @_utcTime = new Date()
+        else
+          @_utcTime = new Date(timeString)
+
         @_localTime = @_utcTime if not @_localTime?
 
     # -------------------------------------------
 
+    timezone: (set) ->
+      return @_timezone if typeof set isnt 'number'
+
+      @_timezone = set
+      @_localTime = new Date(@_utcTime.getTime() + @_timezone * 60000)
+
+    # -------------------------------------------
+
     format: (str) ->
-      str.replace /(HH?|hh?|mm?|ss?|do|d{1,4}|Do|DD?|MM?M?M?|YYY?Y?|a|A)/g, (match, token) =>
+      str.replace /(HH?|hh?|mm?|ss?|do|d{1,4}|Do|DD?D?D?|MM?M?M?|YYY?Y?|a|A)/g, (match, token) =>
         return @_tokens[token].apply(@) if @_tokens[token]?
         token
 
@@ -170,6 +187,13 @@ define (require) ->
 
     # -------------------------------------------
 
+    _makeThreeDigits: (n) ->
+      return "00#{n}" if n < 10
+      return "0#{n}" if n < 100
+      return "#{n}"
+
+    # -------------------------------------------
+
     _numerate: (n) ->
       if n >= 20 or n < 10
         return "#{n}st" if n % 10 is 1
@@ -229,3 +253,28 @@ define (require) ->
 
     day: ->
       @_getTimeObj().getUTCDay()
+
+    # -------------------------------------------
+
+    dayOfYear: ->
+      now = (new Date(@year(), 0, 0)).getTime()
+      now += @_timezone * 60000 if not @_useUTC
+
+      @epochDay() - Math.floor(now / 8.64e+7)
+
+    # -------------------------------------------
+
+    epoch: ->
+      Math.floor(@_getTimeObj().getTime() / 1000)
+
+    # -------------------------------------------
+
+    epochDay: ->
+      Math.floor(@epoch() / 8.64e+4)
+
+    # -------------------------------------------
+
+    daysInYear: ->
+      year = @year()
+      return 366 if year % 4 is 0 and (year % 100 isnt 0 or year % 400 is 0)
+      return 365
